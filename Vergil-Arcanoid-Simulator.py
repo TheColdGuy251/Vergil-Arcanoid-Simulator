@@ -1,9 +1,61 @@
+import os
 import pygame
-"Test"
+import sys
+import random
+import cv2
 
-class BaseBox:
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    if colorkey is not None:
+        image = image.convert()
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    else:
+        image = image.convert_alpha()
+    return image
+
+
+class BaseBox(pygame.sprite.Sprite):
     pass
 
 
-class Buttonbox(BaseBox):
+class ButtonBox(BaseBox):
     pass
+
+
+class Vergil(pygame.sprite.Sprite):
+    pass
+
+
+if __name__ == "__main__":
+    pygame.init()
+    width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    pygame.display.set_caption("Vergil Arcanoid Simulator")
+    all_sprites = pygame.sprite.Group()
+    horizontal_borders = pygame.sprite.Group()
+    vertical_borders = pygame.sprite.Group()
+
+    video = cv2.VideoCapture("video.mp4")
+    success, video_image = video.read()
+    fps_video = video.get(cv2.CAP_PROP_FPS)
+    fps = 50
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+        screen.fill((7, 0, 36))
+        all_sprites.draw(screen)
+        all_sprites.update()
+        pygame.display.flip()
+        clock.tick(fps)
+    pygame.quit()
