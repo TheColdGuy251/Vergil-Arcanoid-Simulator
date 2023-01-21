@@ -25,7 +25,7 @@ class BaseBox(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
         self.image = load_image("gek.png")
-        self.isrotating = random.randint(1, 10)
+        self.isrotating = random.randint(1, 5)
         self.angle = 0
         if self.isrotating == 1:
             self.imagec = self.image.copy()
