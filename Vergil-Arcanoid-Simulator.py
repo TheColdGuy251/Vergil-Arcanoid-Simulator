@@ -18,6 +18,7 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
+    image = pygame.transform.scale(image, (200, 300))
     return image
 
 
@@ -33,7 +34,7 @@ class ButtonBox(BaseBox):
 class Vergil(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
-        self.image = load_image("IAMTHESTORM.png")
+        self.image = load_image("stand.png", (0, 0, 0))
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
@@ -43,9 +44,13 @@ class Vergil(pygame.sprite.Sprite):
     def update(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
+            self.image = load_image("left.png", (0, 0, 0))
             self.rect.x -= 10
         elif keys[pygame.K_d]:
+            self.image = load_image("right.png", (0, 0, 0))
             self.rect.x += 10
+        else:
+            self.image = load_image("stand.png", (0, 0, 0))
 
 
 if __name__ == "__main__":
@@ -54,7 +59,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     all_sprites = pygame.sprite.Group()
-    vergil = Vergil(((width / 2 ) - 100, height - 200))
+    vergil = Vergil(((width / 2 ) - 100, height - 300))
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
     fps = 50
