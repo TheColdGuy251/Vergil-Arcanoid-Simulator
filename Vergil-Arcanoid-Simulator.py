@@ -41,23 +41,21 @@ def main_menu_music_player():
 
 def music_player(style_rank):
     if style_rank == 0:
-        pygame.mixer.Sound.play("data/music/bury_the_light_intro.ogg")
+        pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 66:
+        pygame.mixer.music.queue("data/music/bury_the_light_no_rank.ogg")
     elif style_rank == 1:
-        pygame.mixer.Sound.play("data/music/bury_the_light_no_rank.ogg")
+        pygame.mixer.music.queue('data/music/bury_the_light_dismal.ogg')
     elif style_rank == 2:
-        pygame.mixer.Sound.play("data/music/bury_the_light_dismal.ogg")
+        pygame.mixer.music.queue("data/music/bury_the_light_crazy.ogg")
     elif style_rank == 3:
-        pygame.mixer.Sound.play("data/music/bury_the_light_crazy.ogg")
+        pygame.mixer.music.queue("data/music/bury_the_light_badass.ogg")
     elif style_rank == 4:
-        pygame.mixer.Sound.play("data/music/bury_the_light_badass.ogg")
+        pygame.mixer.music.queue("data/music/bury_the_light_apocalyptic.ogg")
     elif style_rank == 5:
-        pygame.mixer.Sound.play("data/music/bury_the_light_apocalyptic.ogg")
-    elif style_rank == 6:
-        pygame.mixer.Sound.play("data/music/bury_the_light_savage.ogg")
-    elif style_rank == 7:
-        pygame.mixer.Sound.play("data/music/bury_the_light_sick_skills.ogg")
-    elif style_rank == 8:
-        pygame.mixer.Sound.play("data/music/bury_the_light_smokin_sexy_style.ogg")
+        pygame.mixer.music.queue("data/music/bury_the_light_s.ogg")
+
 
 
 def judgement_cut(times):
@@ -136,10 +134,14 @@ if __name__ == "__main__":
     fps = 50
     clock = pygame.time.Clock()
     running = True
+    rank = -1
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                rank += 1
+                music_player(rank)
         screen.fill((7, 0, 36))
         all_sprites.draw(screen)
         all_sprites.update()
