@@ -2,6 +2,7 @@ import os
 import pygame
 import sys
 import random
+import moviepy.editor
 
 
 def load_image(name, colorkey=None):
@@ -22,15 +23,7 @@ def load_image(name, colorkey=None):
 
 class BaseBox(pygame.sprite.Sprite):
     def __init__(self, pos):
-        super().__init__(all_sprites)
-        self.image = load_image("pt.png")
-        self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
-
-    def update(self):
-        self.rect = self.rect.move(0, 1)
+        pass
 
 
 class ButtonBox(BaseBox):
@@ -40,7 +33,7 @@ class ButtonBox(BaseBox):
 class Vergil(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
-        self.image = load_image("vergil.png")
+        self.image = load_image("IAMTHESTORM.png")
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
@@ -48,19 +41,17 @@ class Vergil(pygame.sprite.Sprite):
         self.key = 0
 
     def update(self):
-        if self.key == 97:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_a]:
             self.rect.x -= 10
-        elif self.key == 100:
+        elif keys[pygame.K_d]:
             self.rect.x += 10
-
-    def move(self, key):
-        self.key = key
 
 
 if __name__ == "__main__":
     pygame.init()
-    width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    width, height = 800, 600
+    screen = pygame.display.set_mode((width, height))
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     all_sprites = pygame.sprite.Group()
     vergil = Vergil(((width / 2 ) - 100, height - 200))
@@ -73,10 +64,6 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                vergil.move(event.key)
-            if event.type == pygame.KEYUP:
-                vergil.move(0)
         BaseBox((random.randint(10, width - 0.2 * width), -20))
         screen.fill((7, 0, 36))
         all_sprites.draw(screen)
