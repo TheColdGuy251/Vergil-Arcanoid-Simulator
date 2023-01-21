@@ -25,11 +25,18 @@ class BaseBox(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
         self.image = load_image("gek.png")
-        self.isrotating = random.randint(1, 5)
+        self.effect = random.randint(1, 5)
         self.angle = 0
-        if self.isrotating == 1:
+        self.speed = 1
+        self.sidemovem = 0
+        if self.effect == 1:
             self.imagec = self.image.copy()
             self.image.set_alpha(0)
+        elif self.effect == 2:
+            self.speed = 3
+        elif self.effect == 3:
+            self.sidemove = -1
+        if self.effect == 1:
             self.rect = self.imagec.get_rect()
             self.mask = pygame.mask.from_surface(self.imagec)
         else:
@@ -40,7 +47,7 @@ class BaseBox(pygame.sprite.Sprite):
 
 
     def update(self):
-        if self.isrotating == 1:
+        if self.effect == 1:
             self.imagea = pygame.transform.rotate(self.imagec, self.angle)
             self.angle += 1
             self.angle = self.angle % 360
@@ -48,7 +55,16 @@ class BaseBox(pygame.sprite.Sprite):
             self.rect = self.imagea.get_rect()
             self.rect.center = (x, y)
             screen.blit(self.imagea, self.rect)
-        self.rect = self.rect.move(0, 1)
+        if self.effect == 3:
+            if self.sidemove < 0:
+                self.sidemovem = 1
+            elif self.sidemove > 100:
+                self.sidemovem = -1
+            if self.sidemovem == 1:
+                self.sidemove += 1
+            elif self.sidemovem == -1:
+                self.sidemove -= 1
+        self.rect = self.rect.move(self.sidemovem, self.speed)
 
 
 class ButtonBox(BaseBox):
