@@ -43,18 +43,24 @@ def music_player(style_rank):
     if style_rank == 0:
         pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
         pygame.mixer.music.play()
-    elif style_rank == 66:
-        pygame.mixer.music.queue("data/music/bury_the_light_no_rank.ogg")
     elif style_rank == 1:
-        pygame.mixer.music.queue('data/music/bury_the_light_dismal.ogg')
+        pygame.mixer.music.load("data/music/bury_the_light_no_rank.ogg")
+        pygame.mixer.music.play()
     elif style_rank == 2:
-        pygame.mixer.music.queue("data/music/bury_the_light_crazy.ogg")
+        pygame.mixer.music.load('data/music/bury_the_light_dismal.ogg')
+        pygame.mixer.music.play()
     elif style_rank == 3:
-        pygame.mixer.music.queue("data/music/bury_the_light_badass.ogg")
+        pygame.mixer.music.load("data/music/bury_the_light_crazy.ogg")
+        pygame.mixer.music.play()
     elif style_rank == 4:
-        pygame.mixer.music.queue("data/music/bury_the_light_apocalyptic.ogg")
+        pygame.mixer.music.load("data/music/bury_the_light_badass.ogg")
+        pygame.mixer.music.play()
     elif style_rank == 5:
-        pygame.mixer.music.queue("data/music/bury_the_light_s.ogg")
+        pygame.mixer.music.load("data/music/bury_the_light_apocalyptic.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 6:
+        pygame.mixer.music.load("data/music/bury_the_light_s.ogg")
+        pygame.mixer.music.play()
 
 
 
@@ -135,13 +141,22 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     running = True
     rank = -1
+    MUSIC_END = pygame.USEREVENT + 1
+    pygame.mixer.music.set_endevent(MUSIC_END)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 rank += 1
-                music_player(rank)
+                if rank == 0:
+                    music_player(rank)
+            if event.type == MUSIC_END:
+                if rank == 0:
+                    rank = 1
+                    music_player(rank)
+                else:
+                    music_player(rank)
         screen.fill((7, 0, 36))
         all_sprites.draw(screen)
         all_sprites.update()
