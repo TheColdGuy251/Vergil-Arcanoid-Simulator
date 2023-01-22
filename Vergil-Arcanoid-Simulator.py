@@ -93,9 +93,8 @@ class Vergil(pygame.sprite.Sprite):
 
 if __name__ == "__main__":
     pygame.init()
-    width, height = 800, 600
-    size = width, height
-    screen = pygame.display.set_mode(size)
+    width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     all_sprites = pygame.sprite.Group()
     vergil = Vergil(((width / 2 ) - 100, height - 200))
