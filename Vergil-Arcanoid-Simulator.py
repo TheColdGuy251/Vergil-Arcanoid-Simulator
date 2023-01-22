@@ -26,6 +26,7 @@ class BaseBox(pygame.sprite.Sprite):
         super().__init__(all_sprites)
         self.image = load_image("gek.png", 100, 300)
         self.effect = random.randint(1, 5)
+        self.touched = False
         self.angle = 0
         self.speed = 1
         self.sidemovem = 0
@@ -45,7 +46,6 @@ class BaseBox(pygame.sprite.Sprite):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
 
-
     def update(self):
         if self.effect == 1:
             self.imagea = pygame.transform.rotate(self.imagec, self.angle)
@@ -64,7 +64,13 @@ class BaseBox(pygame.sprite.Sprite):
                 self.sidemove += 1
             elif self.sidemovem == -3:
                 self.sidemove -= 1
-        self.rect = self.rect.move(self.sidemovem, self.speed * 2)
+        if not pygame.sprite.collide_mask(self, vergil):
+            self.rect = self.rect.move(self.sidemovem, self.speed * 2)
+        else:
+            self.touched = True
+
+    def touch(self):
+        return self.touched
 
 
 class ButtonBox(BaseBox):
@@ -73,7 +79,7 @@ class ButtonBox(BaseBox):
 
 class Vergil(pygame.sprite.Sprite):
     def __init__(self, pos):
-        super().__init__(all_sprites)
+        super().__init__(main_char)
         self.image = load_image("stand.png", 300, 200, (0, 0, 0))
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
@@ -99,6 +105,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     all_sprites = pygame.sprite.Group()
+    main_char = pygame.sprite.Group()
     vergil = Vergil(((width / 2 ) - 100, height - 300))
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
@@ -114,10 +121,15 @@ if __name__ == "__main__":
         if spawnwait == spawnlim:
             BaseBox((random.randint(10, width - 0.2 * width), -20))
             spawnwait = 0
+        for box in all_sprites:
+            if box.touch():
+                all_sprites.remove(box)
         spawnwait += 1
         screen.fill((7, 0, 36))
         all_sprites.draw(screen)
         all_sprites.update()
+        main_char.draw(screen)
+        main_char.update()
         pygame.display.flip()
         clock.tick(fps)
     pygame.quit()
