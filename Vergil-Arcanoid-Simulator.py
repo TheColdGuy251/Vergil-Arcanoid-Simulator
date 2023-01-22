@@ -21,9 +21,24 @@ def load_image(name, width, height, colorkey=None):
     return image
 
 
+class Border(pygame.sprite.Sprite):
+    def __init__(self, x1, y1, x2, y2):
+        super().__init__(all_sprites)
+        if x1 == x2:
+            self.add(vertical_borders)
+            self.image = pygame.Surface([1, y2 - y1])
+            self.rect = pygame.Rect(x1, y1, 1, y2 - y1)
+        else:
+            self.add(horizontal_borders)
+            self.image = pygame.Surface([x2 - x1, 1])
+            self.rect = pygame.Rect(x1, y1, x2 - x1, 1)
+
+
 class BaseBox(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
+        self.add(boxes)
+        self.pos = pos
         self.image = load_image("gek.png", 100, 300)
         self.effect = random.randint(1, 5)
         self.touched = False
@@ -43,8 +58,8 @@ class BaseBox(pygame.sprite.Sprite):
         else:
             self.rect = self.image.get_rect()
             self.mask = pygame.mask.from_surface(self.image)
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
+        self.rect.x = self.pos[0]
+        self.rect.y = self.pos[1]
 
     def update(self):
         if self.effect == 1:
@@ -68,9 +83,23 @@ class BaseBox(pygame.sprite.Sprite):
             self.rect = self.rect.move(self.sidemovem, self.speed * 2)
         else:
             self.touched = True
+        if pygame.sprite.spritecollideany(self, vertical_borders):
+            self.sidemovem = -self.sidemovem
+        if pygame.sprite.spritecollideany(self, horizontal_borders):
+            self.kill()
 
     def touch(self):
         return self.touched
+
+    def spawn_check(self):
+        for elem in boxes:
+            if elem is self:
+                continue
+            elif pygame.sprite.collide_mask(self, elem):
+                self.kill()
+                global spawnwait
+                spawnwait = 40
+
 
 
 class ButtonBox(BaseBox):
@@ -97,6 +126,11 @@ class Vergil(pygame.sprite.Sprite):
             self.rect.x += 10
         else:
             self.image = load_image("stand.png", 300, 200, (0, 0, 0))
+        if pygame.sprite.spritecollideany(self, vertical_borders):
+            if self.rect.x < width // 2:
+                self.rect.x = width - 300
+            else:
+                self.rect.x = 100
 
 
 if __name__ == "__main__":
@@ -105,10 +139,14 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     all_sprites = pygame.sprite.Group()
+    boxes = pygame.sprite.Group()
     main_char = pygame.sprite.Group()
     vergil = Vergil(((width / 2 ) - 100, height - 300))
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
+    Border(0, height + 200, width, height + 200)
+    Border(-100, 0, -100, height)
+    Border(width + 50, 0, width + 50, height)
     fps = 50
     clock = pygame.time.Clock()
     running = True
@@ -118,10 +156,11 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        if spawnwait == spawnlim:
-            BaseBox((random.randint(10, width - 0.2 * width), -20))
+        if spawnwait >= spawnlim:
+            boxa = BaseBox((random.randint(10, width - 0.2 * width), -20))
             spawnwait = 0
-        for box in all_sprites:
+            boxa.spawn_check()
+        for box in boxes:
             if box.touch():
                 all_sprites.remove(box)
         spawnwait += 1
