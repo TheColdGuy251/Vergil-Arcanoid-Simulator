@@ -101,7 +101,6 @@ class BaseBox(pygame.sprite.Sprite):
                 spawnwait = 40
 
 
-
 class ButtonBox(BaseBox):
     pass
 
@@ -141,7 +140,7 @@ if __name__ == "__main__":
     all_sprites = pygame.sprite.Group()
     boxes = pygame.sprite.Group()
     main_char = pygame.sprite.Group()
-    vergil = Vergil(((width / 2 ) - 100, height - 300))
+    vergil = Vergil(((width / 2) - 100, height - 300))
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
     Border(0, height + 200, width, height + 200)
