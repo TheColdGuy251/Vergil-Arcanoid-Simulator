@@ -4,7 +4,7 @@ import sys
 import random
 
 
-def load_image(name, colorkey=None):
+def load_image(name, width, height, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
@@ -17,14 +17,14 @@ def load_image(name, colorkey=None):
         image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
-    image = pygame.transform.scale(image, (200, 100))
+    image = pygame.transform.scale(image, (height, width))
     return image
 
 
 class BaseBox(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
-        self.image = load_image("gek.png")
+        self.image = load_image("gek.png", 100, 300)
         self.effect = random.randint(1, 5)
         self.angle = 0
         self.speed = 1
@@ -57,14 +57,14 @@ class BaseBox(pygame.sprite.Sprite):
             screen.blit(self.imagea, self.rect)
         if self.effect == 3:
             if self.sidemove < 0:
-                self.sidemovem = 1
-            elif self.sidemove > 100:
-                self.sidemovem = -1
-            if self.sidemovem == 1:
+                self.sidemovem = 3
+            elif self.sidemove > 200:
+                self.sidemovem = -3
+            if self.sidemovem == 3:
                 self.sidemove += 1
-            elif self.sidemovem == -1:
+            elif self.sidemovem == -3:
                 self.sidemove -= 1
-        self.rect = self.rect.move(self.sidemovem, self.speed)
+        self.rect = self.rect.move(self.sidemovem, self.speed * 2)
 
 
 class ButtonBox(BaseBox):
@@ -74,7 +74,7 @@ class ButtonBox(BaseBox):
 class Vergil(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
-        self.image = load_image("stand.png", (0, 0, 0))
+        self.image = load_image("stand.png", 300, 200, (0, 0, 0))
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
@@ -84,13 +84,13 @@ class Vergil(pygame.sprite.Sprite):
     def update(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
-            self.image = load_image("left.png", (0, 0, 0))
+            self.image = load_image("left.png", 300, 200, (0, 0, 0))
             self.rect.x -= 10
         elif keys[pygame.K_d]:
-            self.image = load_image("right.png", (0, 0, 0))
+            self.image = load_image("right.png", 300, 200, (0, 0, 0))
             self.rect.x += 10
         else:
-            self.image = load_image("stand.png", (0, 0, 0))
+            self.image = load_image("stand.png", 300, 200, (0, 0, 0))
 
 
 if __name__ == "__main__":
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     all_sprites = pygame.sprite.Group()
-    vergil = Vergil(((width / 2 ) - 100, height - 200))
+    vergil = Vergil(((width / 2 ) - 100, height - 300))
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
     fps = 50
