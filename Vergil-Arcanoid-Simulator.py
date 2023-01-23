@@ -128,6 +128,39 @@ def random_dialogues(interval):
         elif a == 5:
             pygame.mixer.Music.play("data/dialogue/now_im_a_little_motivated.ogg")
 
+def rank_announcer(style_rank):
+    a = random.randint(0, 1)
+    if a == 0:
+        if style_rank == 2:
+            pygame.mixer.Sound('data/sounds/dismal1.ogg').play()
+        elif style_rank == 3:
+            pygame.mixer.Sound('data/sounds/crazy1.ogg').play()
+        elif style_rank == 4:
+            pygame.mixer.Sound('data/sounds/badass1.ogg').play()
+        elif style_rank == 5:
+            pygame.mixer.Sound('data/sounds/apocalyptic1.ogg').play()
+        elif style_rank == 6:
+            pygame.mixer.Sound('data/sounds/savage1.ogg').play()
+        elif style_rank == 7:
+            pygame.mixer.Sound('data/sounds/sick_skills1.ogg').play()
+        elif style_rank == 8:
+            pygame.mixer.Sound('data/sounds/smokin_sexy_style1.ogg').play()
+    else:
+        if style_rank == 2:
+            pygame.mixer.Sound('data/sounds/dismal2.ogg').play()
+        elif style_rank == 3:
+            pygame.mixer.Sound('data/sounds/crazy2.ogg').play()
+        elif style_rank == 4:
+            pygame.mixer.Sound('data/sounds/badass2.ogg').play()
+        elif style_rank == 5:
+            pygame.mixer.Sound('data/sounds/apocalyptic2.ogg').play()
+        elif style_rank == 6:
+            pygame.mixer.Sound('data/sounds/savage2.ogg').play()
+        elif style_rank == 7:
+            pygame.mixer.Sound('data/sounds/sick_skills2.ogg').play()
+        elif style_rank == 8:
+            pygame.mixer.Sound('data/sounds/smokin_sexy_style2.ogg').play()
+
 
 if __name__ == "__main__":
     pygame.init()
@@ -149,7 +182,10 @@ if __name__ == "__main__":
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 rank += 1
+                rank_announcer(rank)
                 if rank == 0:
+                    music_player(rank)
+                if rank >= 6:
                     music_player(rank)
             if event.type == MUSIC_END:
                 if rank == 0:
