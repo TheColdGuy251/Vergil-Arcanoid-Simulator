@@ -60,6 +60,11 @@ class BaseBox(pygame.sprite.Sprite):
             self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = self.pos[0]
         self.rect.y = self.pos[1]
+        self.buttonbox_create = random.randint(1, 6)
+        if self.buttonbox_create == 1:
+            global spawnbox_ready
+            spawnbox_ready = True
+            self.kill()
 
     def update(self):
         if self.effect == 1:
@@ -101,8 +106,59 @@ class BaseBox(pygame.sprite.Sprite):
                 spawnwait = 40
 
 
-class ButtonBox(BaseBox):
-    pass
+class ButtonBox(pygame.sprite.Sprite):
+    def __init__(self, pos):
+        super().__init__(all_sprites)
+        self.add(boxes)
+        self.pos = pos
+        self.image = load_image("gek.png", 100, 300)
+        self.speed = 1
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.imagebb = pygame.Surface((160, 60))
+        self.imagebb.fill((0, 0, 0))
+        self.rectbb = self.imagebb.get_rect()
+        self.rectbb.x = self.pos[0] + 75
+        self.rectbb.y = self.pos[1] + 25
+        self.maskbb = pygame.mask.from_surface(self.image)
+        self.imageb = pygame.Surface((150, 50))
+        self.imageb.fill((170, 170, 170))
+        self.rectb = self.imageb.get_rect()
+        self.maskb = pygame.mask.from_surface(self.image)
+        self.rect.x = self.pos[0]
+        self.rect.y = self.pos[1]
+        self.rectb.x = self.pos[0] + 75
+        self.rectb.y = self.pos[1] + 25
+        self.readytotouch = False
+        self.touched = False
+
+    def update(self):
+        if pygame.sprite.spritecollideany(self, horizontal_borders):
+            self.kill()
+        mousePos = pygame.mouse.get_pos()
+        screen.blit(self.imagebb, self.rectbb)
+        screen.blit(self.imageb, self.rectb)
+        if self.rectb.collidepoint(mousePos):
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                self.readytotouch = True
+        if self.readytotouch and pygame.sprite.collide_mask(self, vergil):
+            self.touched = True
+        else:
+            self.rect = self.rect.move(0, self.speed * 2)
+            self.rectb = self.rectb.move(0, self.speed * 2)
+            self.rectbb = self.rectb.move(0, self.speed * 2)
+
+    def touch(self):
+        return self.touched
+
+    def spawn_check(self):
+        for elem in boxes:
+            if elem is self:
+                continue
+            elif pygame.sprite.collide_mask(self, elem):
+                self.kill()
+                global spawnwaitb
+                spawnwaitb = 200
 
 
 class Vergil(pygame.sprite.Sprite):
@@ -151,10 +207,15 @@ if __name__ == "__main__":
     running = True
     spawnwait = 0
     spawnlim = 40
+    spawnbox_ready = False
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        if spawnbox_ready:
+            boxb = ButtonBox((random.randint(10, width - 0.2 * width), -20))
+            spawnbox_ready = False
+            boxb.spawn_check()
         if spawnwait >= spawnlim:
             boxa = BaseBox((random.randint(10, width - 0.2 * width), -20))
             spawnwait = 0
