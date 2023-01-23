@@ -41,7 +41,7 @@ class BaseBox(pygame.sprite.Sprite):
         self.pos = pos
         self.image = load_image("gek.png", 100, 300)
         self.effect = random.randint(1, 5)
-        self.touched = False
+        self.touched = 0
         self.angle = 0
         self.speed = 1
         self.sidemovem = 0
@@ -87,7 +87,7 @@ class BaseBox(pygame.sprite.Sprite):
         if not pygame.sprite.collide_mask(self, vergil):
             self.rect = self.rect.move(self.sidemovem, self.speed * 2)
         else:
-            self.touched = True
+            self.touched = 1
         if pygame.sprite.spritecollideany(self, vertical_borders):
             self.sidemovem = -self.sidemovem
         if pygame.sprite.spritecollideany(self, horizontal_borders):
@@ -104,6 +104,7 @@ class BaseBox(pygame.sprite.Sprite):
                 self.kill()
                 global spawnwait
                 spawnwait = 40
+
 
 
 class ButtonBox(pygame.sprite.Sprite):
@@ -130,7 +131,7 @@ class ButtonBox(pygame.sprite.Sprite):
         self.rectb.x = self.pos[0] + 75
         self.rectb.y = self.pos[1] + 25
         self.readytotouch = False
-        self.touched = False
+        self.touched = 0
 
     def update(self):
         if pygame.sprite.spritecollideany(self, horizontal_borders):
@@ -142,7 +143,7 @@ class ButtonBox(pygame.sprite.Sprite):
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
                 self.readytotouch = True
         if self.readytotouch and pygame.sprite.collide_mask(self, vergil):
-            self.touched = True
+            self.touched = 2
         else:
             self.rect = self.rect.move(0, self.speed * 2)
             self.rectb = self.rectb.move(0, self.speed * 2)
@@ -208,10 +209,14 @@ if __name__ == "__main__":
     spawnwait = 0
     spawnlim = 40
     spawnbox_ready = False
+    rank_score = 0
+    pygame.time.set_timer(993, 2000)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == 993:
+                rank_score -= 1
         if spawnbox_ready:
             boxb = ButtonBox((random.randint(10, width - 0.2 * width), -20))
             spawnbox_ready = False
@@ -221,8 +226,12 @@ if __name__ == "__main__":
             spawnwait = 0
             boxa.spawn_check()
         for box in boxes:
-            if box.touch():
+            if box.touch() > 0:
                 all_sprites.remove(box)
+                boxes.remove(box)
+                box.kill()
+                rank_score += box.touch()
+                print(rank_score)
         spawnwait += 1
         screen.fill((7, 0, 36))
         all_sprites.draw(screen)
