@@ -189,6 +189,133 @@ class Vergil(pygame.sprite.Sprite):
                 self.rect.x = 100
 
 
+def main_menu_music_player():
+    pygame.mixer.Music.play("data/music/main_menu.ogg")
+
+
+def music_player(style_rank):
+    if style_rank == 0:
+        pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 1:
+        pygame.mixer.music.load("data/music/bury_the_light_no_rank.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 2:
+        pygame.mixer.music.load('data/music/bury_the_light_dismal.ogg')
+        pygame.mixer.music.play()
+    elif style_rank == 3:
+        pygame.mixer.music.load("data/music/bury_the_light_crazy.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 4:
+        pygame.mixer.music.load("data/music/bury_the_light_badass.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 5:
+        pygame.mixer.music.load("data/music/bury_the_light_apocalyptic.ogg")
+        pygame.mixer.music.play()
+    elif style_rank == 6:
+        pygame.mixer.music.load("data/music/bury_the_light_s.ogg")
+        pygame.mixer.music.play()
+
+
+
+def judgement_cut(times):
+    pygame.mixer.Sound.play("data/sound/judgement_cut.ogg")
+    if times == 3:
+        pygame.mixer.Sound.play("data/dialogues/jackpot.ogg")
+
+
+def doppleganger():
+    pygame.mixer.Sound.play("data/sound/doppleganger_spawn.ogg")
+
+
+def judgement_cut_end(style_rank):
+    if style_rank == 5:
+        pass
+    else:
+        pygame.mixer.Sound.play("data/sound/judgement_cut_end_main.ogg")
+        if random.randint(0, 1) == 0:
+            pygame.mixer.Sound.play("data/dialogues/slay_all.ogg")
+        else:
+            pygame.mixer.Sound.play("data/dialogues/you_shall_die.ogg")
+
+
+def sin_devil_trigger():
+    pygame.mixer.Sound.play("data/sound/sdt_transformation.ogg")
+    if random.randint(0, 1) == 0:
+        pygame.mixer.Sound.play("data/dialogues/nightmare_begins.ogg")
+    else:
+        pygame.mixer.Sound.play("data/dialogues/this_is_power.ogg")
+
+
+def damage_taken(interval):
+    a = random.randint(0, 2)
+    if a == 0:
+        pygame.mixer.Music.play("data/sound/hurt1.ogg")
+    elif a == 1:
+        pygame.mixer.Music.play("data/sound/hurt2.ogg")
+    else:
+        pygame.mixer.Music.play("data/sound/hurt3.ogg")
+
+    if interval >= 5000:
+        a = random.randint(0, 2)
+        if a == 0:
+            pygame.mixer.Music.play("data/dialogue/hurt1.ogg")
+        elif a == 1:
+            pygame.mixer.Music.play("data/dialogue/hurt2.ogg")
+        else:
+            pygame.mixer.Music.play("data/dialogue/hurt3.ogg")
+
+
+def random_dialogues(interval):
+    if interval >= 10000:
+        a = random.randint(0, 5)
+        if a == 0:
+            pygame.mixer.Music.play("data/dialogue/show_me_your_motivation.ogg")
+        elif a == 1:
+            pygame.mixer.Music.play("data/dialogue/you_not_worthy_as_my_opponent.ogg")
+        elif a == 2:
+            pygame.mixer.Music.play("data/dialogue/scum.ogg")
+        elif a == 3:
+            pygame.mixer.Music.play("data/dialogue/how_boring.ogg")
+        elif a == 4:
+            pygame.mixer.Music.play("data/dialogue/your_wasting_my_time.ogg")
+        elif a == 5:
+            pygame.mixer.Music.play("data/dialogue/now_im_a_little_motivated.ogg")
+
+def rank_announcer(style_rank):
+    a = random.randint(0, 1)
+    if a == 0:
+        if style_rank == 2:
+            pygame.mixer.Sound('data/sounds/dismal1.ogg').play()
+        elif style_rank == 3:
+            pygame.mixer.Sound('data/sounds/crazy1.ogg').play()
+        elif style_rank == 4:
+            pygame.mixer.Sound('data/sounds/badass1.ogg').play()
+        elif style_rank == 5:
+            pygame.mixer.Sound('data/sounds/apocalyptic1.ogg').play()
+        elif style_rank == 6:
+            pygame.mixer.Sound('data/sounds/savage1.ogg').play()
+        elif style_rank == 7:
+            pygame.mixer.Sound('data/sounds/sick_skills1.ogg').play()
+        elif style_rank == 8:
+            pygame.mixer.Sound('data/sounds/smokin_sexy_style1.ogg').play()
+    else:
+        if style_rank == 2:
+            pygame.mixer.Sound('data/sounds/dismal2.ogg').play()
+        elif style_rank == 3:
+            pygame.mixer.Sound('data/sounds/crazy2.ogg').play()
+        elif style_rank == 4:
+            pygame.mixer.Sound('data/sounds/badass2.ogg').play()
+        elif style_rank == 5:
+            pygame.mixer.Sound('data/sounds/apocalyptic2.ogg').play()
+        elif style_rank == 6:
+            pygame.mixer.Sound('data/sounds/savage2.ogg').play()
+        elif style_rank == 7:
+            pygame.mixer.Sound('data/sounds/sick_skills2.ogg').play()
+        elif style_rank == 8:
+            pygame.mixer.Sound('data/sounds/smokin_sexy_style2.ogg').play()
+
+
 if __name__ == "__main__":
     pygame.init()
     width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
