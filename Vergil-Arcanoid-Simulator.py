@@ -26,18 +26,16 @@ class Button():
 
         objects.append(self)
 
-    def process(self, transparency):
-
+    def process(self):
         mousePos = pygame.mouse.get_pos()
         self.buttonSurface = self.buttonSurface.convert_alpha()
         if not self.buttonRect.collidepoint(mousePos):
             self.buttonSurface.fill((0, 0, 0, 0))
-            transparency = 0
         if self.buttonRect.collidepoint(mousePos):
-            if transparency <= 201:
-                transparency += 3
-            self.buttonSurface.fill((0, 0, 255, transparency))
-
+            self.buttonSurface.fill((0, 0, 255, 0))
+            shape_surf = pygame.Surface(pygame.Rect(0, self.y, 1000, self.height).size, pygame.SRCALPHA)
+            pygame.draw.rect(shape_surf, (0, 0, 255, 120), shape_surf.get_rect())
+            screen.blit(shape_surf, (0, self.y, 1000, self.height))
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
                 self.buttonSurface.fill(self.fillColors['pressed'])
 
@@ -71,8 +69,10 @@ screen = pygame.display.set_mode((width, height))
 font = pygame.font.SysFont('Arial', 40)
 
 objects = []
-customButton = Button(30, 30, 400, 100, 'Начать игру', myFunction)
-customButton = Button(30, 140, 400, 100, 'Обучение', myFunction, True)
+transparent = 0
+customButton = Button(40, 30, 400, 50, 'Начать игру', myFunction)
+customButton = Button(30, 140, 400, 50, 'Обучение', myFunction)
+customButton = Button(30, 200, 400, 50, 'Выйти', myFunction)
 running = True
 while running:
     screen.fill((20, 20, 20))
@@ -82,7 +82,7 @@ while running:
             sys.exit()
 
     for object in objects:
-        object.process(0)
+        object.process()
 
     pygame.display.flip()
     fpsClock.tick(fps)
