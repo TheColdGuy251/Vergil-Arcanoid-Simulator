@@ -198,25 +198,25 @@ def main_menu_music_player():
 def music_player(style_rank):
     if style_rank == 0:
         pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
     elif style_rank == 1:
         pygame.mixer.music.load("data/music/bury_the_light_no_rank.ogg")
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
     elif style_rank == 2:
         pygame.mixer.music.load('data/music/bury_the_light_dismal.ogg')
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
     elif style_rank == 3:
         pygame.mixer.music.load("data/music/bury_the_light_crazy.ogg")
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
     elif style_rank == 4:
         pygame.mixer.music.load("data/music/bury_the_light_badass.ogg")
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
     elif style_rank == 5:
         pygame.mixer.music.load("data/music/bury_the_light_apocalyptic.ogg")
-        pygame.mixer.music.play()
-    elif style_rank == 6:
+        pygame.mixer.music.play(-1)
+    elif style_rank >= 6:
         pygame.mixer.music.load("data/music/bury_the_light_s.ogg")
-        pygame.mixer.music.play()
+        pygame.mixer.music.play(-1)
 
 
 def judgement_cut(times):
@@ -267,21 +267,26 @@ def damage_taken(interval):
             pygame.mixer.Music.play("data/dialogue/hurt3.ogg")
 
 
-def random_dialogues(interval):
-    if interval >= 10000:
-        a = random.randint(0, 5)
-        if a == 0:
-            pygame.mixer.Music.play("data/dialogue/show_me_your_motivation.ogg")
-        elif a == 1:
-            pygame.mixer.Music.play("data/dialogue/you_not_worthy_as_my_opponent.ogg")
-        elif a == 2:
-            pygame.mixer.Music.play("data/dialogue/scum.ogg")
-        elif a == 3:
-            pygame.mixer.Music.play("data/dialogue/how_boring.ogg")
-        elif a == 4:
-            pygame.mixer.Music.play("data/dialogue/your_wasting_my_time.ogg")
-        elif a == 5:
-            pygame.mixer.Music.play("data/dialogue/now_im_a_little_motivated.ogg")
+def random_dialogues():
+    a = random.randint(0, 5)
+    if a == 0:
+        s = pygame.mixer.Sound("data/dialogue/show_me_your_motivation.ogg")
+        s.play()
+    elif a == 1:
+        s = pygame.mixer.Sound("data/dialogue/you_not_worthy_as_my_opponent.ogg")
+        s.play()
+    elif a == 2:
+        s = pygame.mixer.Sound("data/dialogue/scum.ogg")
+        s.play()
+    elif a == 3:
+        s = pygame.mixer.Sound("data/dialogue/how_boring.ogg")
+        s.play()
+    elif a == 4:
+        s = pygame.mixer.Sound("data/dialogue/your_wasting_my_time.ogg")
+        s.play()
+    elif a == 5:
+        s = pygame.mixer.Sound("data/dialogue/now_im_a_little_motivated.ogg")
+        s.play()
 
 
 def rank_announcer(style_rank):
@@ -339,13 +344,20 @@ if __name__ == "__main__":
     spawnlim = 40
     spawnbox_ready = False
     rank_score = 0
-    pygame.time.set_timer(993, 2000)
+    pygame.time.set_timer(993, 6000)
+    pygame.time.set_timer(995, 10000)
+    rank = 0
+    MUSIC_END = pygame.USEREVENT + 1
+    last_rs = -1
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == 993:
                 rank_score -= 1
+            if event.type == 995:
+                #random_dialogues()
+                pass
         if spawnbox_ready:
             boxb = ButtonBox((random.randint(10, width - 0.2 * width), -20))
             spawnbox_ready = False
@@ -360,7 +372,66 @@ if __name__ == "__main__":
                 boxes.remove(box)
                 box.kill()
                 rank_score += box.touch()
-                print(rank_score)
+        if rank_score >= 200:
+            rank = 8
+            if last_rs != rank:
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 8
+        elif rank_score >= 150:
+            rank = 7
+            if last_rs != rank:
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 7
+        elif rank_score >= 100:
+            rank = 6
+            if last_rs != rank:
+                pygame.mixer.music.stop()
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 6
+        elif rank_score >= 80:
+            rank = 5
+            if last_rs != rank:
+                pygame.mixer.music.stop()
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 5
+        elif rank_score >= 60:
+            rank = 4
+            if last_rs != rank:
+                pygame.mixer.music.stop()
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 4
+        elif rank_score >= 40:
+            rank = 3
+            if last_rs != rank:
+                pygame.mixer.music.stop()
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 3
+        elif rank_score >= 20:
+            rank = 2
+            if last_rs != rank:
+                pygame.mixer.music.stop()
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 2
+        elif rank_score >= 1:
+            rank = 1
+            if last_rs != rank:
+                pygame.mixer.music.stop()
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 1
+        else:
+            rank = 0
+            if last_rs != rank:
+                rank_announcer(rank)
+                music_player(rank)
+                last_rs = 0
         spawnwait += 1
         screen.fill((7, 0, 36))
         all_sprites.draw(screen)
