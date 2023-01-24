@@ -4,6 +4,9 @@ import sys
 import random
 
 
+pygame.mixer.pre_init(44100, -16, 1, 512)
+
+
 def load_image(name, width, height, colorkey=None):
     fullname = os.path.join('data', name)
     if not os.path.isfile(fullname):
@@ -104,7 +107,6 @@ class BaseBox(pygame.sprite.Sprite):
                 self.kill()
                 global spawnwait
                 spawnwait = 40
-
 
 
 class ButtonBox(pygame.sprite.Sprite):
@@ -217,7 +219,6 @@ def music_player(style_rank):
         pygame.mixer.music.play()
 
 
-
 def judgement_cut(times):
     pygame.mixer.Sound.play("data/sound/judgement_cut.ogg")
     if times == 3:
@@ -281,6 +282,7 @@ def random_dialogues(interval):
             pygame.mixer.Music.play("data/dialogue/your_wasting_my_time.ogg")
         elif a == 5:
             pygame.mixer.Music.play("data/dialogue/now_im_a_little_motivated.ogg")
+
 
 def rank_announcer(style_rank):
     a = random.randint(0, 1)
