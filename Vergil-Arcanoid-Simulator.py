@@ -1,7 +1,9 @@
 import sys
 import pygame
+import cv2
 
-pygame.mixer.init()
+
+pygame.mixer.pre_init(44100, -16, 1, 512)
 
 
 class Button():
@@ -71,8 +73,14 @@ def main_menu_music():
 
 
 pygame.init()
-fps = 60
+video = cv2.VideoCapture("data\intro.mp4")
+pygame.mixer.music.load("data\music\intro.ogg")
+success, video_image = video.read()
+fps = video.get(cv2.CAP_PROP_FPS)
 fpsClock = pygame.time.Clock()
+window = pygame.display.set_mode(video_image.shape[1::-1])
+pygame.mixer.music.play()
+clock = pygame.time.Clock()
 width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
 screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 
@@ -81,16 +89,34 @@ customButton = Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', myFuncti
 customButton = Button(width / 2 - 200, height * 0.78, 400, 60, 'Tutorial', myFunction)
 customButton = Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', myFunction)
 bg = pygame.image.load("data/vergil background.png")
-main_menu_music()
+MUSIC_END = pygame.USEREVENT + 1
+pygame.mixer.music.set_endevent(MUSIC_END)
+stop_intro = False
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-    screen.blit(bg, (0, 0))
-    for object in objects:
-        object.process()
+        if event.type == pygame.KEYDOWN:
+            video.release()
+            success = False
+        if event.type == MUSIC_END:
+            main_menu_music()
+    success, video_image = video.read()
+    if success:
+        video_surf = pygame.image.frombuffer(
+            video_image.tobytes(), video_image.shape[1::-1], "BGR")
+        window.blit(video_surf, (0, 0))
+    else:
+        if not stop_intro:
+            pygame.mixer.music.stop()
+            stop_intro = True
+        pygame.display.flip()
+        screen.blit(bg, (0, 0))
+        for object in objects:
+            object.process()
 
     pygame.display.flip()
     fpsClock.tick(fps)
+pygame.quit()
