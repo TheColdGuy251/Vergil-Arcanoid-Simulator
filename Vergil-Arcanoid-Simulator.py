@@ -194,7 +194,7 @@ class Vergil(pygame.sprite.Sprite):
 def main_menu_music_player():
     pygame.mixer.Music.play("data/music/main_menu.ogg")
 
-
+"""
 def music_player(style_rank):
     if style_rank == 0:
         pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
@@ -217,7 +217,27 @@ def music_player(style_rank):
     elif style_rank >= 6:
         pygame.mixer.music.load("data/music/bury_the_light_s.ogg")
         pygame.mixer.music.play(-1)
+"""
 
+def music_player(style_rank, tutorial = False):
+    pygame.mixer.music.play(0)
+    checkpoints = []
+    if style_rank == 0 and tutorial:
+        pass
+    elif style_rank == 0 and not tutorial:
+        pass
+    elif style_rank == 1:
+        pygame.mixer.music.play(0, )
+    elif style_rank == 2:
+        pygame.mixer.music.play(-1)
+    elif style_rank == 3:
+        pygame.mixer.music.play(-1)
+    elif style_rank == 4:
+        pygame.mixer.music.play(-1)
+    elif style_rank == 5:
+        pygame.mixer.music.play(-1)
+    elif style_rank >= 6:
+        pygame.mixer.music.play(-1)
 
 def judgement_cut(times):
     pygame.mixer.Sound.play("data/sound/judgement_cut.ogg")
@@ -325,6 +345,7 @@ def rank_announcer(style_rank):
 
 if __name__ == "__main__":
     pygame.init()
+    pygame.mixer.music.load("data/music/bury the light all ranks.ogg")
     width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
