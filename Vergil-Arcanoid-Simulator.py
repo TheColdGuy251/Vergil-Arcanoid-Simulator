@@ -220,24 +220,32 @@ def music_player(style_rank):
 """
 
 def music_player(style_rank, tutorial = False):
-    pygame.mixer.music.play(0)
     checkpoints = []
+    a = random.randint(0, 1)
+    b = random.randint(0, 2)
     if style_rank == 0 and tutorial:
-        pass
+        pygame.mixer.music.set_pos(8)
     elif style_rank == 0 and not tutorial:
-        pass
+        pygame.mixer.music.set_pos(81.066)
     elif style_rank == 1:
-        pygame.mixer.music.play(0, )
-    elif style_rank == 2:
-        pygame.mixer.music.play(-1)
-    elif style_rank == 3:
-        pygame.mixer.music.play(-1)
+        pygame.mixer.music.play()
+        pygame.mixer.music.set_pos(97.006)
+    elif style_rank == 2 and a == 0:
+        pygame.mixer.music.set_pos(pygame.mixer.music.get_pos() / 1000 + 122.671)
+    elif style_rank == 2 and a == 1:
+        pygame.mixer.music.set_pos(pygame.mixer.music.get_pos() / 1000 + 148.317)
+    elif style_rank == 3 and b == 0:
+        pygame.mixer.music.set_pos(173.869)
+    elif style_rank == 3 and b == 1:
+        pygame.mixer.music.set_pos(225.113)
+    elif style_rank == 3 and b == 2:
+        pygame.mixer.music.set_pos(250.711)
     elif style_rank == 4:
-        pygame.mixer.music.play(-1)
+        pass
     elif style_rank == 5:
-        pygame.mixer.music.play(-1)
+        pass
     elif style_rank >= 6:
-        pygame.mixer.music.play(-1)
+        pass
 
 def judgement_cut(times):
     pygame.mixer.Sound.play("data/sound/judgement_cut.ogg")
@@ -346,6 +354,7 @@ def rank_announcer(style_rank):
 if __name__ == "__main__":
     pygame.init()
     pygame.mixer.music.load("data/music/bury the light all ranks.ogg")
+    pygame.mixer.music.play()
     width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
@@ -368,7 +377,7 @@ if __name__ == "__main__":
     pygame.time.set_timer(993, 6000)
     pygame.time.set_timer(995, 10000)
     rank = 0
-    MUSIC_END = pygame.USEREVENT + 1
+
     last_rs = -1
     while running:
         for event in pygame.event.get():
@@ -408,42 +417,36 @@ if __name__ == "__main__":
         elif rank_score >= 100:
             rank = 6
             if last_rs != rank:
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 music_player(rank)
                 last_rs = 6
         elif rank_score >= 80:
             rank = 5
             if last_rs != rank:
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 music_player(rank)
                 last_rs = 5
         elif rank_score >= 60:
             rank = 4
             if last_rs != rank:
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 music_player(rank)
                 last_rs = 4
-        elif rank_score >= 40:
+        elif rank_score >= 10:
             rank = 3
             if last_rs != rank:
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 music_player(rank)
                 last_rs = 3
-        elif rank_score >= 20:
+        elif rank_score >= 5:
             rank = 2
             if last_rs != rank:
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 music_player(rank)
                 last_rs = 2
         elif rank_score >= 1:
             rank = 1
             if last_rs != rank:
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 music_player(rank)
                 last_rs = 1
