@@ -195,28 +195,40 @@ def main_menu_music_player():
     pygame.mixer.Music.play("data/music/main_menu.ogg")
 
 
-def music_player(style_rank, badass_progress, tutorial = False):
+def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
-    if tutorial and not rank:
+    if tutorial and rank == 0:
         pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
         pygame.mixer.music.play(1)
-    elif not tutorial and not rank:
+    elif not tutorial and rank == -1:
+        pygame.mixer.music.load("data/music/bury_the_light_no_damage.ogg")
+        pygame.mixer.music.play(1)
+    elif not tutorial and rank == 0:
         pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
-        pygame.mixer.music.play(1, 81.06)
+        pygame.mixer.music.play(1, 82)
     elif style_rank == 1:
         pygame.mixer.music.load("data/music/bury_the_light_no_rank.ogg")
         pygame.mixer.music.play(1)
-    elif style_rank == 2 and a == 0:
-        pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
-        pygame.mixer.music.play(1)
-    elif style_rank == 2 and a == 1:
-        pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
-        pygame.mixer.music.play(1)
+    elif style_rank == 2 and prev_no_rank:
+        skip = pygame.mixer.music.get_pos()
+        if a == 0:
+            pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
+            pygame.mixer.music.play(1, skip / 1000)
+        elif a == 1:
+            pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
+            pygame.mixer.music.play(1, skip / 1000)
+
+    elif style_rank == 2 and not prev_no_rank:
+        if a == 0:
+            pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
+            pygame.mixer.music.play(1)
+        elif a == 1:
+            pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
+            pygame.mixer.music.play(1)
     elif style_rank == 3 and b == 0:
         pygame.mixer.music.load("data/music/bury_the_light_crazy_1.ogg")
         pygame.mixer.music.play(1)
-        rank_announcer(rank)
     elif style_rank == 3 and b == 1:
         pygame.mixer.music.load("data/music/bury_the_light_crazy_2.ogg")
         pygame.mixer.music.play(1)
@@ -369,24 +381,34 @@ if __name__ == "__main__":
     rank_score = 0
     pygame.time.set_timer(993, 6000)
     pygame.time.set_timer(995, 10000)
-    rank = 0
+    rank = -1
     last_rs = -1
-    time = -1
-    music_player(rank, time)
-    rank = 1
+    times_played = -1
+    was_no_rank = False
+    music_player(rank, times_played, was_no_rank)
+    intro_playing = True
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
     while running:
         for event in pygame.event.get():
             if event.type == MUSIC_END:
+                intro_playing = False
+                if rank == -1:
+                    rank = 0
+                    music_player(rank, times_played, was_no_rank)
+                    intro_playing = True
+                elif rank == 0:
+                    rank = 1
+                    music_player(rank, times_played, was_no_rank)
+                    was_no_rank = True
                 if rank == 4:
-                    time += 1
-                    music_player(rank, time)
-                    if time == 3:
-                        time = 0
-                        music_player(rank, time)
+                    times_played += 1
+                    music_player(rank, times_played, was_no_rank)
+                    if times_played == 3:
+                        times_played = 0
+                        music_player(rank, times_played, was_no_rank)
                 else:
-                    music_player(rank, time)
+                    music_player(rank, times_played, was_no_rank)
             if event.type == pygame.QUIT:
                 running = False
             if event.type == 993:
@@ -408,44 +430,64 @@ if __name__ == "__main__":
                 boxes.remove(box)
                 box.kill()
                 rank_score += box.touch()
-        if rank_score >= 200:
+                if rank == -1:
+                    rank = 0
+                    music_player(rank, times_played, was_no_rank)
+        if rank_score >= 250:
             rank = 8
+            was_no_rank = False
             if last_rs != rank:
+                rank_score = 260
                 rank_announcer(rank)
                 last_rs = 8
-        elif rank_score >= 30:
+        elif rank_score >= 200:
             rank = 7
+            was_no_rank = False
             if last_rs != rank:
+                rank_score = 220
                 rank_announcer(rank)
                 last_rs = 7
-        elif rank_score >= 25:
+        elif rank_score >= 140:
             rank = 6
+            was_no_rank = False
             if last_rs != rank:
+                rank_score = 160
                 last_rs = 6
                 rank_announcer(rank)
-                music_player(rank, time)
-        elif rank_score >= 20:
+                music_player(rank, times_played, was_no_rank)
+        elif rank_score >= 120:
             rank = 5
+            was_no_rank = False
             if last_rs != rank:
+                rank_score = 130
                 rank_announcer(rank)
                 last_rs = 5
-        elif rank_score >= 15:
+        elif rank_score >= 80:
             rank = 4
+            was_no_rank = False
             if last_rs != rank:
+                rank_score = 100
                 rank_announcer(rank)
                 last_rs = 4
-        elif rank_score >= 10:
+        elif rank_score >= 40:
             rank = 3
+            was_no_rank = False
             if last_rs != rank:
+                rank_score = 60
                 rank_announcer(rank)
                 last_rs = 3
-        elif rank_score >= 5:
+        elif rank_score >= 20:
             rank = 2
             if last_rs != rank:
+                rank_score = 30
+                if was_no_rank and not intro_playing:
+                    music_player(rank, times_played, was_no_rank)
+                    was_no_rank = False
                 rank_announcer(rank)
                 last_rs = 2
-        else:
+        elif rank_score >= 1:
             rank = 1
+            was_no_rank = True
             if last_rs != rank:
                 last_rs = 1
         spawnwait += 1
