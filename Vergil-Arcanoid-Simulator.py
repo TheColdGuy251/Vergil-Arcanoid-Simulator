@@ -345,7 +345,7 @@ class Vergil(pygame.sprite.Sprite):
 class VergilClone(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(main_char)
-        self.image = load_image("stand.png", 300, 200, (0, 0, 0))
+        self.image = load_image("standD.png", 300, 200, (0, 0, 0))
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
@@ -617,7 +617,6 @@ def main_menu():
     beginbutton = Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', game_begin)
     exitbutton = Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', exit)
     main_menu_bg = cv2.VideoCapture("data\main_menu_background.mp4")
-    bg = pygame.image.load("data/vergil background.png")
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
     stop_intro = False
