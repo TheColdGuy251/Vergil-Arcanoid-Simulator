@@ -433,7 +433,7 @@ def main_menu_music_player():
     pygame.mixer.Music.play("data/music/main_menu.ogg")
 
 
-def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
+def music_player(style_rank, badass_progress, prev_no_rank, tutorial=False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
     pygame.mixer.music.set_volume(1)
@@ -630,8 +630,8 @@ def main_menu():
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
-    video = cv2.VideoCapture("data\intro.mp4")
-    pygame.mixer.music.load("data\music\intro.ogg")
+    video = cv2.VideoCapture("data/intro.mp4")
+    pygame.mixer.music.load("data/music/intro.ogg")
     success, video_image = video.read()
     fps = video.get(cv2.CAP_PROP_FPS)
     fpsClock = pygame.time.Clock()
@@ -642,7 +642,7 @@ def main_menu():
     objects = []
     beginbutton = Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', game_begin)
     exitbutton = Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', exit)
-    main_menu_bg = cv2.VideoCapture("data\main_menu_background.mp4")
+    main_menu_bg = cv2.VideoCapture("data/main_menu_background.mp4")
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
     stop_intro = False
@@ -745,7 +745,7 @@ if __name__ == "__main__":
     sabilityalive = False
     tpabilitycd = True
     tpstun = False
-    thabilitycd = False
+    thabilitycd = True
     thabilitysave = False
     thabilityavtivated = False
     background_color = (7, 0, 36)
@@ -821,8 +821,9 @@ if __name__ == "__main__":
         if thabilitycd:
             if keys[pygame.K_3]:
                 judgement_cut_end()
-                pygame.time.set_timer(1010, 60000, 1)
+                pygame.time.set_timer(1010, 1000, 1)
                 pygame.time.set_timer(10101, 8000, 1)
+                videojce = cv2.VideoCapture("data/storm that is approaching.mp4")
                 thabilitysave = True
                 thabilitycd = False
                 if rank < 6:
@@ -1021,6 +1022,12 @@ if __name__ == "__main__":
         main_char.update()
         vcg.update()
         rank_progress.update()
+        if thabilitysave:
+            success, videoj_image = videojce.read()
+            if success:
+                video_surf = pygame.image.frombuffer(
+                    videoj_image.tobytes(), videoj_image.shape[1::-1], "BGR")
+                screen.blit(video_surf, (0, 0))
         pygame.display.flip()
         clock.tick(fps)
     pygame.quit()
