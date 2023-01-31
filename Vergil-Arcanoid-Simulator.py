@@ -348,7 +348,7 @@ class VergilClone(pygame.sprite.Sprite):
         super().__init__(vcg)
         self.action = "standing"
         self.sprites = sprites
-        self.image = self.sprites[2]
+        self.image = self.sprites[0]
         self.currentFrame = 0
         self.rect = (self.image[self.currentFrame]).get_rect()
         self.currentFrame = (self.currentFrame + 1) % len(self.image)
@@ -722,9 +722,9 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
     doppleganger_sprites = []
-    doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 350, 350, (0, 0, 0)))
-    doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 350, 300, (0, 0, 0)))
-    doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 350, 300, (0, 0, 0)))
+    doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 250, 340, (0, 0, 0)))
+    doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 250, 340, (0, 0, 0)))
+    doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 260, 300, (0, 0, 0)))
     vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
@@ -798,7 +798,7 @@ if __name__ == "__main__":
                 sabilitycd = False
                 pygame.time.set_timer(10091, 20000, 1)
                 pygame.time.set_timer(1009, 40000, 1)
-                pygame.time.set_timer(10092, 1500, 1)
+                pygame.time.set_timer(10092, 830, 1)
                 sabilityready = True
         if tpabilitycd:
             if keys[pygame.K_LSHIFT]:
@@ -871,8 +871,8 @@ if __name__ == "__main__":
                 sabilityalive = False
                 sabilityready = False
             if event.type == 10092:
-                vc.rect.x = vergil.rect.x - 500
-                vc.rect.y = vergil.rect.y
+                vc.rect.x = vergil.rect.x - 200
+                vc.rect.y = vergil.rect.y - 30
                 sabilityalive = True
             if event.type == 10111:
                 tpstun = False
