@@ -8,6 +8,7 @@ import cv2
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 
+
 def pilImageToSurface(pilImage):
     mode, size, data = pilImage.mode, pilImage.size, pilImage.tobytes()
     return pygame.image.fromstring(data, size, mode).convert_alpha()
@@ -94,7 +95,6 @@ class RankBar:
         elif self.rank >= 6:
             pygame.draw.rect(screen, (252, 204, 22), pygame.Rect(self.x, self.y, 200 * self.percentage_of_rank, 20))
             pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(self.x, self.y, 200, 20), 2)
-
 
 
 class Border(pygame.sprite.Sprite):
@@ -432,7 +432,7 @@ def main_menu_music_player():
     pygame.mixer.Music.play("data/music/main_menu.ogg")
 
 
-def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
+def music_player(style_rank, badass_progress, prev_no_rank, tutorial=False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
     pygame.mixer.music.set_volume(1)
@@ -633,8 +633,8 @@ def main_menu():
         pygame.mixer.music.set_volume(0.3)
         pygame.mixer.music.play(-1)
 
-    video = cv2.VideoCapture("data\intro.mp4")
-    pygame.mixer.music.load("data\music\intro.ogg")
+    video = cv2.VideoCapture("data/intro.mp4")
+    pygame.mixer.music.load("data/music/intro.ogg")
     success, video_image = video.read()
     fps = video.get(cv2.CAP_PROP_FPS)
     fpsClock = pygame.time.Clock()
@@ -645,7 +645,7 @@ def main_menu():
     objects = []
     beginbutton = Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', game_begin)
     exitbutton = Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', exit)
-    main_menu_bg = cv2.VideoCapture("data\main_menu_background.mp4")
+    main_menu_bg = cv2.VideoCapture("data/main_menu_background.mp4")
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
     stop_intro = False
@@ -722,7 +722,7 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
     doppleganger_sprites = []
-    doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 350, 350, (0, 0, 0)))
+    doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 350, 300, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 350, 300, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 350, 300, (0, 0, 0)))
     vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
@@ -748,7 +748,7 @@ if __name__ == "__main__":
     sabilityalive = False
     tpabilitycd = True
     tpstun = False
-    thabilitycd = False
+    thabilitycd = True
     thabilitysave = False
     thabilityavtivated = False
     background_color = (7, 0, 36)
@@ -824,8 +824,9 @@ if __name__ == "__main__":
         if thabilitycd:
             if keys[pygame.K_3]:
                 judgement_cut_end()
-                pygame.time.set_timer(1010, 60000, 1)
+                pygame.time.set_timer(1010, 1000, 1)
                 pygame.time.set_timer(10101, 8000, 1)
+                videojce = cv2.VideoCapture("data/storm that is approaching.mp4")
                 thabilitysave = True
                 thabilitycd = False
                 if rank < 6:
@@ -1024,6 +1025,12 @@ if __name__ == "__main__":
         main_char.update()
         vcg.update()
         rank_progress.update()
+        if thabilitysave:
+            success, videoj_image = videojce.read()
+            if success:
+                video_surf = pygame.image.frombuffer(
+                    videoj_image.tobytes(), videoj_image.shape[1::-1], "BGR")
+                screen.blit(video_surf, (0, 0))
         pygame.display.flip()
         clock.tick(fps)
     pygame.quit()
