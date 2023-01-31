@@ -433,7 +433,7 @@ def main_menu_music_player():
     pygame.mixer.Music.play("data/music/main_menu.ogg")
 
 
-def music_player(style_rank, badass_progress, prev_no_rank, tutorial=False):
+def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
     pygame.mixer.music.set_volume(1)
@@ -745,7 +745,7 @@ if __name__ == "__main__":
     sabilityalive = False
     tpabilitycd = True
     tpstun = False
-    thabilitycd = True
+    thabilitycd = False
     thabilitysave = False
     thabilityavtivated = False
     background_color = (7, 0, 36)
@@ -788,7 +788,6 @@ if __name__ == "__main__":
                 vergil.acceleration = 0
                 tpstun = True
                 tpabilitycd = False
-                fabilitycd = False
                 pygame.time.set_timer(1011, 1550, 1)
                 pygame.time.set_timer(10111, 1550, 1)
                 doppleganger()
@@ -821,7 +820,7 @@ if __name__ == "__main__":
         if thabilitycd:
             if keys[pygame.K_3]:
                 judgement_cut_end()
-                pygame.time.set_timer(1010, 1000, 1)
+                pygame.time.set_timer(1010, 60000, 1)
                 pygame.time.set_timer(10101, 8000, 1)
                 videojce = cv2.VideoCapture("data/storm that is approaching.mp4")
                 thabilitysave = True
@@ -875,7 +874,6 @@ if __name__ == "__main__":
             if event.type == 10111:
                 tpstun = False
             if event.type == 1011:
-                fabilitycd = True
                 tpabilitycd = True
             if event.type == 1010:
                 thabilitycd = True
