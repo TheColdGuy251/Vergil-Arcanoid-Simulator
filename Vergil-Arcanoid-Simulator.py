@@ -219,7 +219,6 @@ class ButtonBox(pygame.sprite.Sprite):
         self.touched = 0
 
     def update(self):
-
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             global rank_score
             if rank_score > 1:
@@ -347,10 +346,10 @@ class Vergil(pygame.sprite.Sprite):
 
 class VergilClone(pygame.sprite.Sprite):
     def __init__(self, pos, sprites):
-        super().__init__(vc)
+        super().__init__(vcg)
         self.action = "standing"
         self.sprites = sprites
-        self.image = self.sprites[0]
+        self.image = self.sprites[2]
         self.currentFrame = 0
         self.rect = (self.image[self.currentFrame]).get_rect()
         self.currentFrame = (self.currentFrame + 1) % len(self.image)
@@ -358,11 +357,13 @@ class VergilClone(pygame.sprite.Sprite):
         self.rect.x = pos[0]
         self.rect.y = pos[1]
         pygame.time.set_timer(10091, 20000, 1)
-        self.point = -300
+        self.point = -1000
         self.rank = -1
 
     def update(self):
-        if sabilityalive:
+        screen.blit(self.image[self.currentFrame], self.rect)
+        self.currentFrame = (self.currentFrame + 1) % len(self.image)
+        if sabilityready:
             max_y = []
             for box in boxes:
                 max_y.append(box.rect.y)
@@ -370,52 +371,53 @@ class VergilClone(pygame.sprite.Sprite):
                 for box in boxes:
                     if box.rect.y == max(max_y):
                         self.point = box.rect.x
-            else:
-                self.point = -300
-            if self.point != -300:
-                if self.point + 100 > self.rect.x > self.point:
-                    if self.action != "standing":
-                        self.image = self.sprites[0]
-                        self.currentFrame = 0
-                        pos = (self.rect.x, self.rect.y)
-                        self.rect = (self.image[self.currentFrame]).get_rect()
-                        self.rect.x = pos[0]
-                        self.rect.y = pos[1]
-                        self.action = "standing"
-                elif self.rect.x > self.point:
-                    if self.action != "running left":
-                        self.image = self.sprites[1]
-                        self.currentFrame = 0
-                        pos = (self.rect.x, self.rect.y)
-                        self.rect = (self.image[self.currentFrame]).get_rect()
-                        self.rect.x = pos[0]
-                        self.rect.y = pos[1]
-                        self.action = "running left"
-                    if rank <= 2:
-                        self.rect.x -= 10
-                    elif 2 < rank < 5:
-                        self.rect.x -= 15
-                    elif rank == 5:
-                        self.rect.x -= 20
-                    else:
-                        self.rect.x -= 25
-                elif self.rect.x < self.point:
-                    if self.action != "running right":
-                        self.image = self.sprites[2]
-                        self.currentFrame = 0
-                        pos = (self.rect.x, self.rect.y)
-                        self.rect = (self.image[self.currentFrame]).get_rect()
-                        self.rect.x = pos[0]
-                        self.rect.y = pos[1]
-                        self.action = "running right"
-                    if rank <= 2:
-                        self.rect.x += 10
-                    elif 2 < rank < 5:
-                        self.rect.x += 15
-                    elif rank == 5:
-                        self.rect.x += 20
-                    else:
-                        self.rect.x += 30
+        else:
+            self.point = -1000
+            self.rect.x = -1000
+        if sabilityalive:
+            if self.point + 100 > self.rect.x > self.point:
+                if self.action != "standing":
+                    self.image = self.sprites[2]
+                    self.currentFrame = 0
+                    pos = (self.rect.x, self.rect.y)
+                    self.rect = (self.image[self.currentFrame]).get_rect()
+                    self.rect.x = pos[0]
+                    self.rect.y = pos[1]
+                    self.action = "standing"
+            elif self.rect.x > self.point:
+                if self.action != "running left":
+                    self.image = self.sprites[1]
+                    self.currentFrame = 0
+                    pos = (self.rect.x, self.rect.y)
+                    self.rect = (self.image[self.currentFrame]).get_rect()
+                    self.rect.x = pos[0]
+                    self.rect.y = pos[1]
+                    self.action = "running left"
+                if rank <= 2:
+                    self.rect.x -= 10
+                elif 2 < rank < 5:
+                    self.rect.x -= 15
+                elif rank == 5:
+                    self.rect.x -= 20
+                else:
+                    self.rect.x -= 25
+            elif self.rect.x < self.point:
+                if self.action != "running right":
+                    self.image = self.sprites[0]
+                    self.currentFrame = 0
+                    pos = (self.rect.x, self.rect.y)
+                    self.rect = (self.image[self.currentFrame]).get_rect()
+                    self.rect.x = pos[0]
+                    self.rect.y = pos[1]
+                    self.action = "running right"
+                if rank <= 2:
+                    self.rect.x += 10
+                elif 2 < rank < 5:
+                    self.rect.x += 15
+                elif rank == 5:
+                    self.rect.x += 20
+                else:
+                    self.rect.x += 30
             else:
                 if self.action != "standing":
                     self.image = self.sprites[0]
@@ -425,8 +427,6 @@ class VergilClone(pygame.sprite.Sprite):
                     self.rect.x = pos[0]
                     self.rect.y = pos[1]
                     self.action = "standing"
-        else:
-            self.rect.x = -300
 
 
 def main_menu_music_player():
@@ -700,7 +700,7 @@ if __name__ == "__main__":
     all_sprites = pygame.sprite.Group()
     boxes = pygame.sprite.Group()
     main_char = pygame.sprite.Group()
-    vc = pygame.sprite.Group()
+    vcg = pygame.sprite.Group()
     buttons = pygame.sprite.Group()
     acceleration = 0
     rank = -1
@@ -719,7 +719,7 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
     doppleganger_sprites = []
-    doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 200, 200, (0, 0, 0)))
+    doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 350, 350, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 350, 300, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 350, 300, (0, 0, 0)))
     vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
@@ -757,6 +757,7 @@ if __name__ == "__main__":
     intro_playing = True
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
+    sabilityready = False
 
     while running:
         if spawnbox_ready:
@@ -787,15 +788,15 @@ if __name__ == "__main__":
                 vergil.acceleration = 0
                 tpstun = True
                 tpabilitycd = False
+                fabilitycd = False
                 pygame.time.set_timer(1011, 1550, 1)
                 pygame.time.set_timer(10111, 1550, 1)
                 doppleganger()
-                vc.rect.x = vergil.rect.x
-                vc.rect.y = vergil.rect.y
                 sabilitycd = False
                 pygame.time.set_timer(10091, 20000, 1)
                 pygame.time.set_timer(1009, 40000, 1)
-                sabilityalive = True
+                pygame.time.set_timer(10092, 1500, 1)
+                sabilityready = True
         if tpabilitycd:
             if keys[pygame.K_LSHIFT]:
                 if keys[pygame.K_a]:
@@ -865,9 +866,15 @@ if __name__ == "__main__":
                     ball.kill()
             if event.type == 10091:
                 sabilityalive = False
+                sabilityready = False
+            if event.type == 10092:
+                vc.rect.x = vergil.rect.x - 500
+                vc.rect.y = vergil.rect.y
+                sabilityalive = True
             if event.type == 10111:
                 tpstun = False
             if event.type == 1011:
+                fabilitycd = True
                 tpabilitycd = True
             if event.type == 1010:
                 thabilitycd = True
@@ -901,6 +908,7 @@ if __name__ == "__main__":
                             pygame.time.set_timer(10118, 800, 1)
                             fabilitycd = False
                             tpstun = True
+                            sabilitycd = False
                             tpabilitycd = False
                             pygame.time.set_timer(1011, 1550, 1)
                             pygame.time.set_timer(10111, 1500, 1)
@@ -1011,7 +1019,7 @@ if __name__ == "__main__":
         boxes.update()
         buttons.update()
         main_char.update()
-        vc.update()
+        vcg.update()
         rank_progress.update()
         pygame.display.flip()
         clock.tick(fps)
