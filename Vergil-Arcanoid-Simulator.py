@@ -8,8 +8,9 @@ import cv2
 
 pygame.mixer.pre_init(44100, -16, 2, 512)
 
-def pilImageToSurface(pilImage):
-    mode, size, data = pilImage.mode, pilImage.size, pilImage.tobytes()
+
+def pil_image_to_surface(pil_image):
+    mode, size, data = pil_image.mode, pil_image.size, pil_image.tobytes()
     return pygame.image.fromstring(data, size, mode).convert_alpha()
 
 
@@ -29,15 +30,15 @@ def load_image(name, width, height, colorkey=None):
             image = image.convert_alpha()
         image = pygame.transform.scale(image, (height, width))
         return image
-    pilImage = Image.open(fullname)
+    pil_image = Image.open(fullname)
     frames = []
-    if pilImage.format == 'GIF' and pilImage.is_animated:
-        for frame in ImageSequence.Iterator(pilImage):
+    if pil_image.format == 'GIF' and pil_image.is_animated:
+        for frame in ImageSequence.Iterator(pil_image):
             frame = frame.resize((width, height))
-            pygameImage = pilImageToSurface(frame.convert('RGBA'))
-            frames.append(pygameImage)
+            pygame_image = pil_image_to_surface(frame.convert('RGBA'))
+            frames.append(pygame_image)
     else:
-        frames.append(pilImageToSurface(pilImage))
+        frames.append(pil_image_to_surface(pil_image))
     return frames
 
 
@@ -96,7 +97,6 @@ class RankBar:
             pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(self.x, self.y, 200, 20), 2)
 
 
-
 class Border(pygame.sprite.Sprite):
     def __init__(self, x1, y1, x2, y2):
         super().__init__(all_sprites)
@@ -121,6 +121,7 @@ class BaseBox(pygame.sprite.Sprite):
         self.touched = 0
         self.angle = 0
         self.speed = 3
+        self.imagea = 0
         self.sidemovem = 0
         if self.effect == 1:
             self.imagec = self.image.copy()
@@ -218,6 +219,7 @@ class ButtonBox(pygame.sprite.Sprite):
         self.touched = 0
 
     def update(self):
+
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             global rank_score
             if rank_score > 1:
@@ -505,14 +507,9 @@ def doppleganger():
 def judgement_cut_end():
     c = pygame.mixer.Sound("data/sounds/judgement_cut_end_main.ogg")
     c.play()
-    if random.randint(0, 1) == 0:
-        a = pygame.mixer.Sound("data/dialogues/slay_all.ogg")
-        a.play()
-        """
-    else:
-        a = pygame.mixer.Sound("data/sounds/you_shall_die.ogg")
-        a.play()
-"""
+    a = pygame.mixer.Sound("data/sounds/you_shall_die.ogg")
+    a.play()
+
 
 def random_dialogues():
     a = random.randint(0, 5)
@@ -572,21 +569,17 @@ def rank_announcer(style_rank):
 
 def main_menu():
     class Button():
-        def __init__(self, x, y, width, height, buttonText='Button', onclickFunction=None, onePress=False):
+        def __init__(self, x, y, width, height, buttonText, onclickFunction):
             self.x = x
             self.y = y
             self.width = width
             self.height = height
             self.onclickFunction = onclickFunction
-            self.onePress = onePress
             self.buttonText = buttonText
             self.flicked = False
-
             self.buttonSurface = pygame.Surface((self.width, self.height))
             self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
-
             self.alreadyPressed = False
-
             objects.append(self)
 
         def process(self):
@@ -723,6 +716,7 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"tp left.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"tp right.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"judgement cut verg.gif", 350, 300, (0, 0, 0)))
+    ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
     doppleganger_sprites = []
     doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 200, 200, (0, 0, 0)))
@@ -788,6 +782,13 @@ if __name__ == "__main__":
         keys = pygame.key.get_pressed()
         if sabilitycd:
             if keys[pygame.K_2]:
+                vergil.currentFrame = 0
+                vergil.image = ability_sprites[4]
+                vergil.acceleration = 0
+                tpstun = True
+                tpabilitycd = False
+                pygame.time.set_timer(1011, 1550, 1)
+                pygame.time.set_timer(10111, 1550, 1)
                 doppleganger()
                 vc.rect.x = vergil.rect.x
                 vc.rect.y = vergil.rect.y
@@ -884,7 +885,6 @@ if __name__ == "__main__":
                             Ball((box.rect.x, box.rect.y), ability_sprites)
                             box.touched = box.index
 
-
         if fabilitybox:
             fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
             fabilitybox = False
@@ -901,11 +901,13 @@ if __name__ == "__main__":
                             pygame.time.set_timer(10118, 800, 1)
                             fabilitycd = False
                             tpstun = True
+                            tpabilitycd = False
+                            pygame.time.set_timer(1011, 1550, 1)
                             pygame.time.set_timer(10111, 1500, 1)
                             pygame.time.set_timer(1008, 10000, 1)
         if rank_score >= 220:
             rank = 8
-            if rank < 240:
+            if rank_score < 240:
                 percentage_of_rank = (rank_score - 220) / 20
             else:
                 percentage_of_rank = 1
