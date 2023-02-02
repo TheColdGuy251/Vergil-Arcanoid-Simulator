@@ -451,15 +451,17 @@ class Button():
             font = pygame.font.Font('data/font/DMC5Font.otf', 45)
             self.buttonSurf = font.render(self.buttonText, True, (255, 255, 255))
             self.flicked = False
-        if self.buttonRect.collidepoint(mousePos):
+        elif self.buttonRect.collidepoint(mousePos):
             self.buttonSurface.fill((0, 39, 62, 0))
             if self.type == 0:
                 shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w, self.height).size,
-                                                pygame.SRCALPHA)
-            else:
-                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w / 2.5, self.height).size,
                                             pygame.SRCALPHA)
-            pygame.draw.rect(shape_surf, (0, 39, 62, 230), shape_surf.get_rect())
+            else:
+                shape_surf = pygame.Surface(
+                    pygame.Rect(0, self.y, pygame.display.Info().current_w / 2.5, self.height).size,
+                    pygame.SRCALPHA)
+            shape_surf.fill((0, 39, 62))
+            shape_surf.set_alpha(255)
             if self.type == 0:
                 screen.blit(shape_surf, (0, self.y, pygame.display.Info().current_w, self.height))
             else:
@@ -470,7 +472,6 @@ class Button():
                 self.flicked = True
             self.buttonSurf = font.render(self.buttonText, True, (124, 255, 255))
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
-
                 if not self.alreadyPressed:
                     self.onclickFunction()
                     if self.type == 0:
@@ -478,10 +479,8 @@ class Button():
                     else:
                         pygame.mixer.Sound('data/sounds/enter sound(alt).ogg').play()
                     self.alreadyPressed = True
-
             else:
                 self.alreadyPressed = False
-
         self.buttonSurface.blit(self.buttonSurf, [
             self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
             self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
@@ -746,6 +745,7 @@ def main_menu(objects):
     begin = False
     frame_counter = 0
     while running:
+        screen.fill((0, 0, 0))
         if begin:
             break
         for event in pygame.event.get():
@@ -855,6 +855,8 @@ if __name__ == "__main__":
     intro_playing = True
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
+    flash = False
+    i = 255
     sabilityready = False
     while running:
         pygame.mixer.music.set_volume(1)
@@ -1043,10 +1045,11 @@ if __name__ == "__main__":
                 for box in boxes:
                     box.kill()
                 thabilitysave = True
+                flash = True
                 fps = 50
                 clock = pygame.time.Clock()
                 thabilitysave = False
-                if rank == 5:
+                if rank <= 5:
                     rank_score = 160
                 else:
                     rank_score += 40
@@ -1054,9 +1057,12 @@ if __name__ == "__main__":
                 if max_y:
                     for box in boxes:
                         if box.rect.y == max(max_y):
-                            judgement_cut()
-                            Ball((box.rect.x, box.rect.y), ability_sprites)
-                            box.touched = box.index
+                            if fabilityused <= 3:
+                                fabilityused += 1
+                                pygame.time.set_timer(10118, 800, 1)
+                                judgement_cut()
+                                Ball((box.rect.x, box.rect.y), ability_sprites)
+                                box.touched = box.index
 
         if fabilitybox:
             fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
@@ -1069,7 +1075,7 @@ if __name__ == "__main__":
                             vergil.currentFrame = 0
                             vergil.image = ability_sprites[3]
                             vergil.acceleration = 0
-                            fabilityused += 1
+                            fabilityused = 1
                             fabox.kill()
                             pygame.time.set_timer(10118, 800, 1)
                             fabilitycd = False
@@ -1184,6 +1190,15 @@ if __name__ == "__main__":
         main_char.update()
         vcg.update()
         rank_progress.update()
+        if flash:
+            tarect = pygame.Surface((width, height))
+            i -= 2
+            tarect.fill((255, 255, 255))
+            tarect.set_alpha(i)
+            screen.blit(tarect, (0, 0))
+            if i <= 0:
+                flash = False
+                i = 255
         pygame.display.flip()
         clock.tick(fps)
 
