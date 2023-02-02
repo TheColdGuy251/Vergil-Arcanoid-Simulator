@@ -1065,11 +1065,24 @@ if __name__ == "__main__":
                     for box in boxes:
                         if box.rect.y == max(max_y):
                             if fabilityused <= 3:
-                                fabilityused += 1
-                                pygame.time.set_timer(10118, 800, 1)
+                                vergil.currentFrame = 20
+                                vergil.image = ability_sprites[3]
+                                vergil.acceleration = 0
                                 judgement_cut()
+                                if rank < 6:
+                                    pygame.time.set_timer(1011, 1400, 1)
+                                    pygame.time.set_timer(10111, 1400, 1)
+                                elif rank >= 6:
+                                    pygame.time.set_timer(1011, 1300, 1)
+                                    pygame.time.set_timer(10111, 1300, 1)
+                            if fabilityused <= 4:
+                                fabilityused += 1
                                 Ball((box.rect.x, box.rect.y), ability_sprites)
                                 box.touched = box.index
+                                if rank < 6:
+                                    pygame.time.set_timer(10118, 500, 1)
+                                elif rank >= 6:
+                                    pygame.time.set_timer(10118, 400, 1)
 
         if fabilitybox:
             fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
@@ -1084,13 +1097,19 @@ if __name__ == "__main__":
                             vergil.acceleration = 0
                             fabilityused = 1
                             fabox.kill()
-                            pygame.time.set_timer(10118, 800, 1)
                             fabilitycd = False
                             tpstun = True
                             tpabilitycd = False
-                            pygame.time.set_timer(1011, 1550, 1)
-                            pygame.time.set_timer(10111, 1500, 1)
-                            pygame.time.set_timer(1008, 10000, 1)
+                            if rank < 6:
+                                pygame.time.set_timer(10118, 800, 1)
+                                pygame.time.set_timer(1011, 1500, 1)
+                                pygame.time.set_timer(10111, 1500, 1)
+                                pygame.time.set_timer(1008, 25000, 1)
+                            elif rank >= 6:
+                                pygame.time.set_timer(10118, 700, 1)
+                                pygame.time.set_timer(1011, 1400, 1)
+                                pygame.time.set_timer(10111, 1400, 1)
+                                pygame.time.set_timer(1008, 25000, 1)
         if rank_score >= 220:
             rank = 8
             if rank_score < 240:
