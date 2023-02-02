@@ -428,6 +428,66 @@ class VergilClone(pygame.sprite.Sprite):
                     self.rect.y = pos[1]
                     self.action = "standing"
 
+class Button():
+    def __init__(self, x, y, width, height, buttonText, onclickFunction, type=0):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.type = type
+        self.onclickFunction = onclickFunction
+        self.buttonText = buttonText
+        self.flicked = False
+        self.buttonSurface = pygame.Surface((self.width, self.height))
+        self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.alreadyPressed = False
+        objects.append(self)
+
+    def process(self):
+        mousePos = pygame.mouse.get_pos()
+        self.buttonSurface = self.buttonSurface.convert_alpha()
+        if not self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill((0, 0, 0, 0))
+            font = pygame.font.Font('data/font/DMC5Font.otf', 45)
+            self.buttonSurf = font.render(self.buttonText, True, (255, 255, 255))
+            self.flicked = False
+        if self.buttonRect.collidepoint(mousePos):
+            self.buttonSurface.fill((0, 39, 62, 0))
+            if self.type == 0:
+                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w, self.height).size,
+                                                pygame.SRCALPHA)
+            else:
+                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w / 2.5, self.height).size,
+                                            pygame.SRCALPHA)
+            pygame.draw.rect(shape_surf, (0, 39, 62, 230), shape_surf.get_rect())
+            if self.type == 0:
+                screen.blit(shape_surf, (0, self.y, pygame.display.Info().current_w, self.height))
+            else:
+                screen.blit(shape_surf, (self.x - 5, self.y, pygame.display.Info().current_w, self.height))
+            font = pygame.font.Font('data/font/DMC5Font.otf', 55)
+            if not self.flicked:
+                pygame.mixer.Sound('data/sounds/flicking sound.ogg').play()
+                self.flicked = True
+            self.buttonSurf = font.render(self.buttonText, True, (124, 255, 255))
+            if pygame.mouse.get_pressed(num_buttons=3)[0]:
+
+                if not self.alreadyPressed:
+                    self.onclickFunction()
+                    if self.type == 0:
+                        pygame.mixer.Sound('data/sounds/enter sound.ogg').play()
+                    else:
+                        pygame.mixer.Sound('data/sounds/enter sound(alt).ogg').play()
+                    self.alreadyPressed = True
+
+            else:
+                self.alreadyPressed = False
+
+        self.buttonSurface.blit(self.buttonSurf, [
+            self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
+            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
+        ])
+        screen.blit(self.buttonSurface, self.buttonRect)
+
 
 def main_menu_music_player():
     pygame.mixer.Music.play("data/music/main_menu.ogg")
@@ -436,7 +496,6 @@ def main_menu_music_player():
 def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
-    pygame.mixer.music.set_volume(1)
     if tutorial and rank == 0:
         pygame.mixer.music.load("data/music/bury_the_light_intro.ogg")
         pygame.mixer.music.play(1)
@@ -505,10 +564,8 @@ def doppleganger():
 
 
 def judgement_cut_end():
-    c = pygame.mixer.Sound("data/sounds/judgement_cut_end_main.ogg")
-    c.play()
-    a = pygame.mixer.Sound("data/sounds/you_shall_die.ogg")
-    a.play()
+    pygame.mixer.Sound("data/sounds/judgement_cut_end_1.ogg").play()
+    pygame.mixer.Sound("data/sounds/you_shall_die.ogg").play()
 
 
 def random_dialogues():
@@ -567,56 +624,97 @@ def rank_announcer(style_rank):
             pygame.mixer.Sound('data/sounds/smokin_sexy_style2.ogg').play()
 
 
-def main_menu():
-    class Button():
-        def __init__(self, x, y, width, height, buttonText, onclickFunction):
-            self.x = x
-            self.y = y
-            self.width = width
-            self.height = height
-            self.onclickFunction = onclickFunction
-            self.buttonText = buttonText
-            self.flicked = False
-            self.buttonSurface = pygame.Surface((self.width, self.height))
-            self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
-            self.alreadyPressed = False
-            objects.append(self)
+def third_ability():
+    video = cv2.VideoCapture("data/storm that is approaching.mp4")
+    fps = video.get(cv2.CAP_PROP_FPS)
+    fpsClock = pygame.time.Clock()
+    clock = pygame.time.Clock()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        success, video_image = video.read()
+        if success:
+            video_surf = pygame.image.frombuffer(
+                video_image.tobytes(), video_image.shape[1::-1], "BGR")
+            screen.blit(video_surf, (0, 0))
+        else:
+            break
+        fpsClock.tick(fps)
+        pygame.display.flip()
 
-        def process(self):
-            mousePos = pygame.mouse.get_pos()
-            self.buttonSurface = self.buttonSurface.convert_alpha()
-            if not self.buttonRect.collidepoint(mousePos):
-                self.buttonSurface.fill((0, 0, 0, 0))
-                font = pygame.font.Font('data/font/DMC5Font.otf', 45)
-                self.buttonSurf = font.render(self.buttonText, True, (255, 255, 255))
-                self.flicked = False
-            if self.buttonRect.collidepoint(mousePos):
-                self.buttonSurface.fill((0, 39, 62, 0))
-                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w, self.height).size,
-                                            pygame.SRCALPHA)
-                pygame.draw.rect(shape_surf, (0, 39, 62, 230), shape_surf.get_rect())
-                screen.blit(shape_surf, (0, self.y, pygame.display.Info().current_w, self.height))
-                font = pygame.font.Font('data/font/DMC5Font.otf', 55)
-                if not self.flicked:
-                    pygame.mixer.Sound('data/sounds/flicking sound.ogg').play()
-                    self.flicked = True
-                self.buttonSurf = font.render(self.buttonText, True, (124, 255, 255))
-                if pygame.mouse.get_pressed(num_buttons=3)[0]:
 
-                    if not self.alreadyPressed:
-                        self.onclickFunction()
-                        pygame.mixer.Sound('data/sounds/enter sound.ogg').play()
-                        self.alreadyPressed = True
+def pause(objects, rank, times_played, was_no_rank):
+    def game_continue():
+        ev = pygame.event.Event(1001)
+        pygame.event.post(ev)
 
+    def exit_to_menu():
+        ev = pygame.event.Event(1002)
+        pygame.event.post(ev)
+
+    def exit():
+        pygame.quit()
+        sys.exit()
+
+    continue_button = Button(width / 7.5 - 200, height * 0.2, 400, 60, 'Continue', game_continue, 1)
+    exit_to_menu = Button(width / 7.5 - 200, height * 0.4, 400, 60, 'Main menu', exit_to_menu, 1)
+    exit_game_button = Button(width / 7.5 - 200, height * 0.5, 400, 60, 'Exit to desktop', exit, 1)
+    begin = False
+    running = True
+    s = pygame.Surface((width, height))
+    s.fill((80, 80, 80))
+    transparency = 0
+    MUSIC_END = pygame.USEREVENT + 1
+    pygame.mixer.music.set_endevent(MUSIC_END)
+    pygame.mixer.music.set_volume(0.5)
+    while running:
+        if begin:
+            pygame.mixer.music.set_volume(1)
+            break
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == 1001:
+                begin = True
+            if event.type == 1002:
+                begin = True
+                return 1
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.mixer.Sound("data/sounds/escape sound.ogg").play()
+                    begin = True
+            if event.type == MUSIC_END:
+                intro_playing = False
+                if rank == -1:
+                    rank = 0
+                    music_player(rank, times_played, was_no_rank)
+                    intro_playing = True
+                elif rank == 0:
+                    rank = 1
+                    music_player(rank, times_played, was_no_rank)
+                    was_no_rank = True
+                if rank == 4:
+                    times_played += 1
+                    music_player(rank, times_played, was_no_rank)
+                    if times_played == 3:
+                        times_played = 0
+                        music_player(rank, times_played, was_no_rank)
                 else:
-                    self.alreadyPressed = False
+                    music_player(rank, times_played, was_no_rank)
+        if transparency <= 3:
+            transparency += 1.5
+        s.set_alpha(transparency)
+        screen.blit(s, (0, 0))
+        for object in objects:
+            object.process()
+        pygame.display.flip()
+        clock.tick(fps)
 
-            self.buttonSurface.blit(self.buttonSurf, [
-                self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
-                self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
-            ])
-            screen.blit(self.buttonSurface, self.buttonRect)
-
+def main_menu(objects):
     def game_begin():
         ev = pygame.event.Event(1001)
         pygame.event.post(ev)
@@ -636,10 +734,8 @@ def main_menu():
     fps = video.get(cv2.CAP_PROP_FPS)
     fpsClock = pygame.time.Clock()
     pygame.mixer.music.play()
+    pygame.mixer.music.set_volume(1)
     clock = pygame.time.Clock()
-    width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    objects = []
     beginbutton = Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', game_begin)
     exitbutton = Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', exit)
     main_menu_bg = cv2.VideoCapture("data/main_menu_background.mp4")
@@ -684,7 +780,6 @@ def main_menu():
                     main_menu_bg.set(cv2.CAP_PROP_POS_FRAMES, 0)
                 for object in objects:
                     object.process()
-
         pygame.display.flip()
         fpsClock.tick(fps)
 
@@ -696,7 +791,9 @@ if __name__ == "__main__":
     width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
-    main_menu()
+    objects = []
+    main_menu(objects)
+    objects = []
     all_sprites = pygame.sprite.Group()
     boxes = pygame.sprite.Group()
     main_char = pygame.sprite.Group()
@@ -717,6 +814,7 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"tp right.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"judgement cut verg.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
+    ability_sprites.append(load_image(r"judgement cut end.gif", 150, 300, (0, 0, 0)))
     fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
     doppleganger_sprites = []
     doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 250, 340, (0, 0, 0)))
@@ -745,7 +843,7 @@ if __name__ == "__main__":
     sabilityalive = False
     tpabilitycd = True
     tpstun = False
-    thabilitycd = False
+    thabilitycd = True
     thabilitysave = False
     thabilityavtivated = False
     background_color = (7, 0, 36)
@@ -758,8 +856,8 @@ if __name__ == "__main__":
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
     sabilityready = False
-
     while running:
+        pygame.mixer.music.set_volume(1)
         if spawnbox_ready:
             boxb = ButtonBox((random.randint(10, width - 0.2 * width), -20))
             spawnbox_ready = False
@@ -803,6 +901,7 @@ if __name__ == "__main__":
                         vergil.currentFrame = 0
                         vergil.image = ability_sprites[1]
                         vergil.rect.x -= width // 5 - vergil.acceleration * 15
+                        pygame.mixer.Sound('data/sounds/tp_sound.ogg').play()
                         tpabilitycd = False
                         pygame.time.set_timer(1011, 450, 1)
                         pygame.time.set_timer(10111, 450, 1)
@@ -812,6 +911,7 @@ if __name__ == "__main__":
                         vergil.currentFrame = 0
                         vergil.image = ability_sprites[2]
                         vergil.rect.x += width // 5 + vergil.acceleration * 20
+                        pygame.mixer.Sound('data/sounds/tp_sound.ogg').play()
                         tpabilitycd = False
                         pygame.time.set_timer(1011, 450, 1)
                         pygame.time.set_timer(10111, 450, 1)
@@ -819,14 +919,21 @@ if __name__ == "__main__":
                 vergil.acceleration = 0
         if thabilitycd:
             if keys[pygame.K_3]:
+                fps = 29
+                vergil.currentFrame = 0
+                vergil.image = ability_sprites[5]
                 judgement_cut_end()
+                if rank <= 5:
+                    pygame.mixer.music.load("data/music/bury_the_light_s(alt).ogg")
+                    pygame.mixer.music.play(1)
+                pygame.time.set_timer(10101, 2950, 1)
                 pygame.time.set_timer(1010, 60000, 1)
-                pygame.time.set_timer(10101, 8000, 1)
-                videojce = cv2.VideoCapture("data/storm that is approaching.mp4")
-                thabilitysave = True
                 thabilitycd = False
-                if rank < 6:
-                    rank_score = 125
+                tpstun = True
+                tpabilitycd = False
+                pygame.time.set_timer(1011, 2950, 1)
+                pygame.time.set_timer(10111, 2950, 1)
+                vergil.acceleration = 0
         if thabilitysave:
             for box in boxes:
                 box.kill()
@@ -851,6 +958,58 @@ if __name__ == "__main__":
                     music_player(rank, times_played, was_no_rank)
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    if not tpstun:
+                        if pause(objects, rank, times_played, was_no_rank) == 1:
+                            objects = []
+                            main_menu(objects)
+                            objects = []
+                            acceleration = 0
+                            rank = -1
+                            rank_score = 0
+                            all_sprites = pygame.sprite.Group()
+                            boxes = pygame.sprite.Group()
+                            main_char = pygame.sprite.Group()
+                            vcg = pygame.sprite.Group()
+                            buttons = pygame.sprite.Group()
+                            vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
+                            rank_progress = RankBar((0.89 * width, 0.53 * height))
+                            fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
+                            vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
+                            horizontal_borders = pygame.sprite.Group()
+                            vertical_borders = pygame.sprite.Group()
+                            balls = pygame.sprite.Group()
+                            Border(0, height + 200, width, height + 200)
+                            Border(-100, 0, -100, height)
+                            Border(width + 50, 0, width + 50, height)
+                            fps = 50
+                            clock = pygame.time.Clock()
+                            running = True
+                            spawnwait = 0
+                            spawnlim = 40
+                            spawnbox_ready = False
+                            pygame.time.set_timer(993, 6000)
+                            pygame.time.set_timer(995, 10000)
+                            last_rs = -1
+                            fabilitycd = True
+                            fabilitybox = False
+                            fabilityused = 0
+                            sabilitycd = True
+                            sabilityalive = False
+                            tpabilitycd = True
+                            tpstun = False
+                            thabilitycd = True
+                            thabilitysave = False
+                            thabilityavtivated = False
+                            background_color = (7, 0, 36)
+                            worlds = 1
+                            percentage_of_rank = 0
+                            times_played = -1
+                            was_no_rank = False
+                            music_player(rank, times_played, was_no_rank)
+                            intro_playing = True
+                            sabilityready = False
             if event.type == 993:
                 rank_score -= 1
             if event.type == 995:
@@ -878,6 +1037,14 @@ if __name__ == "__main__":
             if event.type == 1010:
                 thabilitycd = True
             if event.type == 10101:
+                pygame.mixer.Sound("data/sounds/judgement_cut_end_2.ogg").play()
+                third_ability()
+                pygame.mixer.Sound("data/sounds/judgement_cut_end_3.ogg").play()
+                for box in boxes:
+                    box.kill()
+                thabilitysave = True
+                fps = 50
+                clock = pygame.time.Clock()
                 thabilitysave = False
                 if rank == 5:
                     rank_score = 160
@@ -907,7 +1074,6 @@ if __name__ == "__main__":
                             pygame.time.set_timer(10118, 800, 1)
                             fabilitycd = False
                             tpstun = True
-                            sabilitycd = False
                             tpabilitycd = False
                             pygame.time.set_timer(1011, 1550, 1)
                             pygame.time.set_timer(10111, 1500, 1)
@@ -937,13 +1103,12 @@ if __name__ == "__main__":
             was_no_rank = False
             if last_rs != rank:
                 rank_score = 150
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 worlds = 3
                 spawnlim = 20
                 last_rs = 6
-                rank_announcer(rank)
-                music_player(rank, times_played, was_no_rank)
+                if thabilitycd:
+                    music_player(rank, times_played, was_no_rank)
         elif rank_score >= 100:
             rank = 5
             percentage_of_rank = (rank_score - 100) / 40
@@ -954,7 +1119,6 @@ if __name__ == "__main__":
                     thabilitycd = True
                     thabilityavtivated = True
                 spawnlim = 40
-                pygame.mixer.music.stop()
                 rank_announcer(rank)
                 worlds = 2
                 last_rs = 5
@@ -1020,12 +1184,7 @@ if __name__ == "__main__":
         main_char.update()
         vcg.update()
         rank_progress.update()
-        if thabilitysave:
-            success, videoj_image = videojce.read()
-            if success:
-                video_surf = pygame.image.frombuffer(
-                    videoj_image.tobytes(), videoj_image.shape[1::-1], "BGR")
-                screen.blit(video_surf, (0, 0))
         pygame.display.flip()
         clock.tick(fps)
+
     pygame.quit()
