@@ -750,6 +750,7 @@ def main_menu(objects):
     begin = False
     frame_counter = 0
     while running:
+        screen.fill((0, 0, 0))
         if begin:
             break
         for event in pygame.event.get():
@@ -859,6 +860,8 @@ if __name__ == "__main__":
     intro_playing = True
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
+    flash = False
+    i = 255
     sabilityready = False
     while running:
         pygame.mixer.music.set_volume(1)
@@ -1049,10 +1052,11 @@ if __name__ == "__main__":
                 for box in boxes:
                     box.kill()
                 thabilitysave = True
+                flash = True
                 fps = 50
                 clock = pygame.time.Clock()
                 thabilitysave = False
-                if rank == 5:
+                if rank <= 5:
                     rank_score = 160
                 else:
                     rank_score += 40
@@ -1060,9 +1064,12 @@ if __name__ == "__main__":
                 if max_y:
                     for box in boxes:
                         if box.rect.y == max(max_y):
-                            judgement_cut()
-                            Ball((box.rect.x, box.rect.y), ability_sprites)
-                            box.touched = box.index
+                            if fabilityused <= 3:
+                                fabilityused += 1
+                                pygame.time.set_timer(10118, 800, 1)
+                                judgement_cut()
+                                Ball((box.rect.x, box.rect.y), ability_sprites)
+                                box.touched = box.index
 
         if fabilitybox:
             fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
@@ -1075,7 +1082,7 @@ if __name__ == "__main__":
                             vergil.currentFrame = 0
                             vergil.image = ability_sprites[3]
                             vergil.acceleration = 0
-                            fabilityused += 1
+                            fabilityused = 1
                             fabox.kill()
                             pygame.time.set_timer(10118, 800, 1)
                             fabilitycd = False
@@ -1190,6 +1197,15 @@ if __name__ == "__main__":
         main_char.update()
         vcg.update()
         rank_progress.update()
+        if flash:
+            tarect = pygame.Surface((width, height))
+            i -= 2
+            tarect.fill((255, 255, 255))
+            tarect.set_alpha(i)
+            screen.blit(tarect, (0, 0))
+            if i <= 0:
+                flash = False
+                i = 255
         pygame.display.flip()
         clock.tick(fps)
 
