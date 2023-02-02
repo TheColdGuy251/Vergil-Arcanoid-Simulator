@@ -457,20 +457,19 @@ class Button():
                 shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w, self.height).size,
                                                 pygame.SRCALPHA)
             else:
-                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w / 2.5, self.height).size,
+                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w / 3.912, self.height).size,
                                             pygame.SRCALPHA)
             pygame.draw.rect(shape_surf, (0, 39, 62, 230), shape_surf.get_rect())
             if self.type == 0:
                 screen.blit(shape_surf, (0, self.y, pygame.display.Info().current_w, self.height))
             else:
-                screen.blit(shape_surf, (self.x - 5, self.y, pygame.display.Info().current_w, self.height))
+                screen.blit(shape_surf, (self.x - 25, self.y, pygame.display.Info().current_w, self.height))
             font = pygame.font.Font('data/font/DMC5Font.otf', 55)
             if not self.flicked:
                 pygame.mixer.Sound('data/sounds/flicking sound.ogg').play()
                 self.flicked = True
             self.buttonSurf = font.render(self.buttonText, True, (124, 255, 255))
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
-
                 if not self.alreadyPressed:
                     self.onclickFunction()
                     if self.type == 0:
@@ -478,14 +477,11 @@ class Button():
                     else:
                         pygame.mixer.Sound('data/sounds/enter sound(alt).ogg').play()
                     self.alreadyPressed = True
-
             else:
                 self.alreadyPressed = False
-
         self.buttonSurface.blit(self.buttonSurf, [
             self.buttonRect.width / 2 - self.buttonSurf.get_rect().width / 2,
-            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2
-        ])
+            self.buttonRect.height / 2 - self.buttonSurf.get_rect().height / 2])
         screen.blit(self.buttonSurface, self.buttonRect)
 
 
@@ -659,9 +655,9 @@ def pause(objects, rank, times_played, was_no_rank):
         pygame.quit()
         sys.exit()
 
-    continue_button = Button(width / 7.5 - 200, height * 0.2, 400, 60, 'Continue', game_continue, 1)
-    exit_to_menu = Button(width / 7.5 - 200, height * 0.4, 400, 60, 'Main menu', exit_to_menu, 1)
-    exit_game_button = Button(width / 7.5 - 200, height * 0.5, 400, 60, 'Exit to desktop', exit, 1)
+    continue_button = Button(width / 8 - 200, height * 0.2, 400, 60, 'Continue', game_continue, 1)
+    exit_to_menu = Button(width / 8 - 200, height * 0.4, 400, 60, 'Main menu', exit_to_menu, 1)
+    exit_game_button = Button(width / 8 - 200, height * 0.5, 400, 60, 'Exit to desktop', exit, 1)
     begin = False
     running = True
     s = pygame.Surface((width, height))
@@ -670,6 +666,7 @@ def pause(objects, rank, times_played, was_no_rank):
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
     pygame.mixer.music.set_volume(0.5)
+    slide = 0
     while running:
         if begin:
             pygame.mixer.music.set_volume(1)
@@ -705,12 +702,19 @@ def pause(objects, rank, times_played, was_no_rank):
                         music_player(rank, times_played, was_no_rank)
                 else:
                     music_player(rank, times_played, was_no_rank)
+        s = pygame.Surface((width, height))
+        s.fill((80, 80, 80))
         if transparency <= 3:
             transparency += 1.5
+        if slide <= width / 4:
+            slide += 40
         s.set_alpha(transparency)
         screen.blit(s, (0, 0))
+        pygame.draw.rect(screen, (80, 80, 80), pygame.Rect(0, 0, slide, height))
+        pygame.draw.rect(screen, (20, 20, 20), pygame.Rect(0, 0, slide, height), 15)
         for object in objects:
             object.process()
+
         pygame.display.flip()
         clock.tick(fps)
 
@@ -1010,6 +1014,8 @@ if __name__ == "__main__":
                             music_player(rank, times_played, was_no_rank)
                             intro_playing = True
                             sabilityready = False
+                        else:
+                            objects = []
             if event.type == 993:
                 rank_score -= 1
             if event.type == 995:
