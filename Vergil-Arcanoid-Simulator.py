@@ -849,7 +849,6 @@ if __name__ == "__main__":
     tpabilitycd = True
     tpstun = False
     thabilitycd = True
-    thabilitysave = False
     thabilityavtivated = False
     background_color = (7, 0, 36)
     worlds = 1
@@ -941,9 +940,6 @@ if __name__ == "__main__":
                 pygame.time.set_timer(1011, 2950, 1)
                 pygame.time.set_timer(10111, 2950, 1)
                 vergil.acceleration = 0
-        if thabilitysave:
-            for box in boxes:
-                box.kill()
         for event in pygame.event.get():
             if event.type == MUSIC_END:
                 intro_playing = False
@@ -1007,7 +1003,6 @@ if __name__ == "__main__":
                             tpabilitycd = True
                             tpstun = False
                             thabilitycd = True
-                            thabilitysave = False
                             thabilityavtivated = False
                             background_color = (7, 0, 36)
                             worlds = 1
@@ -1051,11 +1046,12 @@ if __name__ == "__main__":
                 pygame.mixer.Sound("data/sounds/judgement_cut_end_3.ogg").play()
                 for box in boxes:
                     box.kill()
-                thabilitysave = True
+                pygame.time.set_timer(1009, 10000)
+                pygame.time.set_timer(1008, 10000)
+                pygame.time.set_timer(1011, 100)
                 flash = True
                 fps = 50
                 clock = pygame.time.Clock()
-                thabilitysave = False
                 if rank <= 5:
                     rank_score = 160
                 else:
@@ -1199,9 +1195,8 @@ if __name__ == "__main__":
             percentage_of_rank = 0
             background_color = (7, 0, 36)
         spawnwait += 1
-        if rank < 6:
-            screen.fill(background_color)
-        else:
+        screen.fill(background_color)
+        if rank >= 6:
             background = load_image("backgroundS.png", height, width)
             screen.blit(background, (0, 0))
         vergil.rank = rank
