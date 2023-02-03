@@ -1061,24 +1061,33 @@ if __name__ == "__main__":
                     for box in boxes:
                         if box.rect.y == max(max_y):
                             if fabilityused <= 3:
-                                vergil.currentFrame = 20
-                                vergil.image = ability_sprites[3]
+                                if keys[pygame.K_1] and fabilityused >= 1:
+                                    vergil.currentFrame = 20
+                                    vergil.image = ability_sprites[3]
+                                    if rank < 6:
+                                        pygame.time.set_timer(1011, 1400, 1)
+                                        pygame.time.set_timer(10111, 1400, 1)
+                                    elif rank >= 6:
+                                        pygame.time.set_timer(1011, 1400, 1)
+                                        pygame.time.set_timer(10111, 1400, 1)
+                                else:
+                                    if rank < 6:
+                                        pygame.time.set_timer(1011, 900, 1)
+                                        pygame.time.set_timer(10111, 900, 1)
+                                    elif rank >= 6:
+                                        pygame.time.set_timer(1011, 800, 1)
+                                        pygame.time.set_timer(10111, 800, 1)
                                 vergil.acceleration = 0
                                 judgement_cut()
-                                if rank < 6:
-                                    pygame.time.set_timer(1011, 1400, 1)
-                                    pygame.time.set_timer(10111, 1400, 1)
-                                elif rank >= 6:
-                                    pygame.time.set_timer(1011, 1300, 1)
-                                    pygame.time.set_timer(10111, 1300, 1)
                             if fabilityused <= 4:
                                 fabilityused += 1
                                 Ball((box.rect.x, box.rect.y), ability_sprites)
                                 box.touched = box.index
-                                if rank < 6:
-                                    pygame.time.set_timer(10118, 500, 1)
-                                elif rank >= 6:
-                                    pygame.time.set_timer(10118, 400, 1)
+                                if keys[pygame.K_1]:
+                                    if rank < 6:
+                                        pygame.time.set_timer(10118, 500, 1)
+                                    elif rank >= 6:
+                                        pygame.time.set_timer(10118, 400, 1)
 
         if fabilitybox:
             fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
@@ -1098,13 +1107,13 @@ if __name__ == "__main__":
                             tpabilitycd = False
                             if rank < 6:
                                 pygame.time.set_timer(10118, 800, 1)
-                                pygame.time.set_timer(1011, 1500, 1)
-                                pygame.time.set_timer(10111, 1500, 1)
+                                pygame.time.set_timer(1011, 1200, 1)
+                                pygame.time.set_timer(10111, 1200, 1)
                                 pygame.time.set_timer(1008, 25000, 1)
                             elif rank >= 6:
                                 pygame.time.set_timer(10118, 700, 1)
-                                pygame.time.set_timer(1011, 1400, 1)
-                                pygame.time.set_timer(10111, 1400, 1)
+                                pygame.time.set_timer(1011, 1100, 1)
+                                pygame.time.set_timer(10111, 1100, 1)
                                 pygame.time.set_timer(1008, 25000, 1)
         if rank_score >= 220:
             rank = 8
