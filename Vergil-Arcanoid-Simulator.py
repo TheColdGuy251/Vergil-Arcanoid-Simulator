@@ -30,11 +30,18 @@ def load_image(name, width, height, colorkey=None):
             image = image.convert_alpha()
         image = pygame.transform.scale(image, (height, width))
         return image
+    n = -1
     pil_image = Image.open(fullname)
+    directory = name.replace('.gif', "")
+    parent_dir = "C:\Users\smirn\Documents\Vergil-Arcanoid-Simulator\data"
+    path = os.path.join(parent_dir, directory)
+    os.mkdir(path)
     frames = []
     if pil_image.format == 'GIF' and pil_image.is_animated:
         for frame in ImageSequence.Iterator(pil_image):
+            n += 1
             frame = frame.resize((width, height))
+            frame.save(path + "\\" + name.replace('.gif', "") + str(n) + ".png")
             pygame_image = pil_image_to_surface(frame.convert('RGBA'))
             frames.append(pygame_image)
     else:
@@ -90,11 +97,45 @@ class RankBar:
 
     def update(self):
         if 1 < self.rank < 6:
+            pygame.draw.rect(screen, (80, 80, 80), pygame.Rect(self.x, self.y, 200, 20))
             pygame.draw.rect(screen, (15, 141, 255), pygame.Rect(self.x, self.y, 200 * self.percentage_of_rank, 20))
             pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(self.x, self.y, 200, 20), 2)
         elif self.rank >= 6:
+            pygame.draw.rect(screen, (80, 80, 80), pygame.Rect(self.x, self.y, 200, 20))
             pygame.draw.rect(screen, (252, 204, 22), pygame.Rect(self.x, self.y, 200 * self.percentage_of_rank, 20))
             pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(self.x, self.y, 200, 20), 2)
+
+
+class RankVisualisation:
+    def __init__(self, pos, sprites):
+        super().__init__()
+        self.sprites = sprites
+        self.image = self.sprites[0]
+        self.currentFrame = 0
+        self.rect = (self.image[self.currentFrame]).get_rect()
+        self.currentFrame = (self.currentFrame + 1) % len(self.image)
+        self.mask = pygame.mask.from_surface(self.image[self.currentFrame])
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+        self.rank = -1
+
+    def update(self):
+        screen.blit(self.image[self.currentFrame], self.rect)
+        self.currentFrame = (self.currentFrame + 1) % len(self.image)
+        if self.rank == 2:
+            self.image = self.sprites[0]
+        elif self.rank == 3:
+            self.image = self.sprites[2]
+        elif self.rank == 4:
+            self.image = self.sprites[4]
+        elif self.rank == 5:
+            self.image = self.sprites[6]
+        elif self.rank == 6:
+            self.image = self.sprites[8]
+        elif self.rank == 7:
+            self.image = self.sprites[10]
+        elif self.rank == 8:
+            self.image = self.sprites[12]
 
 
 class Border(pygame.sprite.Sprite):
@@ -586,37 +627,53 @@ def random_dialogues():
         s.play()
 
 
-def rank_announcer(style_rank):
+def rank_announcer(style_rank, visualisation_sprites):
     a = random.randint(0, 1)
+    visualisator.rank = -1
+    visualisator.currentFrame = 0
     if a == 0:
         if style_rank == 2:
+            visualisator.image = visualisation_sprites[0]
             pygame.mixer.Sound('data/sounds/dismal1.ogg').play()
         elif style_rank == 3:
+            visualisator.image = visualisation_sprites[1]
             pygame.mixer.Sound('data/sounds/crazy1.ogg').play()
         elif style_rank == 4:
+            visualisator.image = visualisation_sprites[3]
             pygame.mixer.Sound('data/sounds/badass1.ogg').play()
         elif style_rank == 5:
+            visualisator.image = visualisation_sprites[5]
             pygame.mixer.Sound('data/sounds/apocalyptic1.ogg').play()
         elif style_rank == 6:
+            visualisator.image = visualisation_sprites[7]
             pygame.mixer.Sound('data/sounds/savage1.ogg').play()
         elif style_rank == 7:
+            visualisator.image = visualisation_sprites[9]
             pygame.mixer.Sound('data/sounds/sick_skills1.ogg').play()
         elif style_rank == 8:
+            visualisator.image = visualisation_sprites[11]
             pygame.mixer.Sound('data/sounds/smokin_sexy_style1.ogg').play()
     else:
         if style_rank == 2:
+            visualisator.image = visualisation_sprites[0]
             pygame.mixer.Sound('data/sounds/dismal2.ogg').play()
         elif style_rank == 3:
+            visualisator.image = visualisation_sprites[1]
             pygame.mixer.Sound('data/sounds/crazy2.ogg').play()
         elif style_rank == 4:
+            visualisator.image = visualisation_sprites[3]
             pygame.mixer.Sound('data/sounds/badass2.ogg').play()
         elif style_rank == 5:
+            visualisator.image = visualisation_sprites[5]
             pygame.mixer.Sound('data/sounds/apocalyptic2.ogg').play()
         elif style_rank == 6:
+            visualisator.image = visualisation_sprites[7]
             pygame.mixer.Sound('data/sounds/savage2.ogg').play()
         elif style_rank == 7:
+            visualisator.image = visualisation_sprites[9]
             pygame.mixer.Sound('data/sounds/sick_skills2.ogg').play()
         elif style_rank == 8:
+            visualisator.image = visualisation_sprites[11]
             pygame.mixer.Sound('data/sounds/smokin_sexy_style2.ogg').play()
 
 
@@ -718,6 +775,7 @@ def pause(objects, rank, times_played, was_no_rank):
         pygame.display.flip()
         clock.tick(fps)
 
+
 def main_menu(objects):
     def game_begin():
         ev = pygame.event.Event(1001)
@@ -812,7 +870,7 @@ if __name__ == "__main__":
     vergil_sprites.append(load_image(r"running left.gif", 225, 300, (0, 0, 0)))
     vergil_sprites.append(load_image(r"running right.gif", 225, 300, (0, 0, 0)))
     vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
-    rank_progress = RankBar((0.89 * width, 0.53 * height))
+    rank_progress = RankBar((0.89 * width, 0.583 * height))
     ability_sprites = []
     ability_sprites.append(load_image(r"judgement cut (ability).gif", 200, 200, (0, 0, 0)))
     ability_sprites.append(load_image(r"tp left.gif", 350, 300, (0, 0, 0)))
@@ -820,12 +878,27 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"judgement cut verg.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"judgement cut end.gif", 150, 300, (0, 0, 0)))
-    fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
+    fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
     doppleganger_sprites = []
     doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 250, 340, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 250, 340, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 260, 300, (0, 0, 0)))
     vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
+    style = []
+    style.append(load_image(r"dismal.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"crazy.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"crazy_repeated.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"badass.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"badass_repeated.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"apocalyptic.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"apocalyptic_repeated.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"savage.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"savage_repeated.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"sick_skills.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"sick_skills_repeated.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"smokin_sexy_style.gif", 350, 284, (0, 0, 0)))
+    style.append(load_image(r"smokin_sexy_style_repeated.gif", 350, 284, (0, 0, 0)))
+    visualisator = RankVisualisation((width * 0.85, height * 0.32), style)
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
     balls = pygame.sprite.Group()
@@ -909,7 +982,7 @@ if __name__ == "__main__":
                         vergil.rect.x -= width // 5 - vergil.acceleration * 15
                         pygame.mixer.Sound('data/sounds/tp_sound.ogg').play()
                         tpabilitycd = False
-                        pygame.time.set_timer(1011, 450, 1)
+                        pygame.time.set_timer(1011, 650, 1)
                         pygame.time.set_timer(10111, 450, 1)
                         tpstun = True
                 elif keys[pygame.K_d]:
@@ -919,7 +992,7 @@ if __name__ == "__main__":
                         vergil.rect.x += width // 5 + vergil.acceleration * 20
                         pygame.mixer.Sound('data/sounds/tp_sound.ogg').play()
                         tpabilitycd = False
-                        pygame.time.set_timer(1011, 450, 1)
+                        pygame.time.set_timer(1011, 650, 1)
                         pygame.time.set_timer(10111, 450, 1)
                         tpstun = True
                 vergil.acceleration = 0
@@ -977,8 +1050,8 @@ if __name__ == "__main__":
                             vcg = pygame.sprite.Group()
                             buttons = pygame.sprite.Group()
                             vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
-                            rank_progress = RankBar((0.89 * width, 0.53 * height))
-                            fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
+                            rank_progress = RankBar((0.89 * width, 0.72 * height))
+                            fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
                             vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
                             horizontal_borders = pygame.sprite.Group()
                             vertical_borders = pygame.sprite.Group()
@@ -1036,6 +1109,7 @@ if __name__ == "__main__":
                 sabilityalive = True
             if event.type == 10111:
                 tpstun = False
+                vergil.acceleration = 0
             if event.type == 1011:
                 tpabilitycd = True
             if event.type == 1010:
@@ -1090,7 +1164,7 @@ if __name__ == "__main__":
                                         pygame.time.set_timer(10118, 400, 1)
 
         if fabilitybox:
-            fabox = AbilityBox((width * 0.87, height * 0.3), ability_sprites)
+            fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
             fabilitybox = False
         if fabilitycd:
             if max_y:
@@ -1124,7 +1198,7 @@ if __name__ == "__main__":
             was_no_rank = False
             if last_rs != rank:
                 rank_score = 230
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 last_rs = 8
         elif rank_score >= 180:
             rank = 7
@@ -1132,7 +1206,7 @@ if __name__ == "__main__":
             was_no_rank = False
             if last_rs != rank:
                 rank_score = 190
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 last_rs = 7
         elif rank_score >= 140:
             rank = 6
@@ -1140,7 +1214,7 @@ if __name__ == "__main__":
             was_no_rank = False
             if last_rs != rank:
                 rank_score = 150
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 worlds = 3
                 spawnlim = 20
                 last_rs = 6
@@ -1156,7 +1230,7 @@ if __name__ == "__main__":
                     thabilitycd = True
                     thabilityavtivated = True
                 spawnlim = 40
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 worlds = 2
                 last_rs = 5
         elif rank_score >= 80:
@@ -1168,7 +1242,7 @@ if __name__ == "__main__":
             was_no_rank = False
             if last_rs != rank:
                 rank_score = 70
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 last_rs = 4
                 background_color = (45, 0, 15)
         elif rank_score >= 40:
@@ -1177,7 +1251,7 @@ if __name__ == "__main__":
             was_no_rank = False
             if last_rs != rank:
                 rank_score = 50
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 worlds = 2
                 last_rs = 3
                 background_color = (60, 0, 30)
@@ -1189,7 +1263,7 @@ if __name__ == "__main__":
                 if was_no_rank and not intro_playing:
                     music_player(rank, times_played, was_no_rank)
                     was_no_rank = False
-                rank_announcer(rank)
+                rank_announcer(rank, style)
                 worlds = 1
                 last_rs = 2
                 background_color = (20, 0, 86)
@@ -1219,6 +1293,11 @@ if __name__ == "__main__":
         buttons.update()
         main_char.update()
         vcg.update()
+        if rank >= 2:
+            visualisator.update()
+            if visualisator.currentFrame == len(visualisator.image) - 1:
+                visualisator.currentFrame = 0
+                visualisator.rank = rank
         rank_progress.update()
         if flash:
             tarect = pygame.Surface((width, height))
