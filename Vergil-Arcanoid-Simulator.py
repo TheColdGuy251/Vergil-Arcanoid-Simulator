@@ -30,18 +30,11 @@ def load_image(name, width, height, colorkey=None):
             image = image.convert_alpha()
         image = pygame.transform.scale(image, (height, width))
         return image
-    n = -1
     pil_image = Image.open(fullname)
-    directory = name.replace('.gif', "")
-    parent_dir = "C:\Users\smirn\Documents\Vergil-Arcanoid-Simulator\data"
-    path = os.path.join(parent_dir, directory)
-    os.mkdir(path)
     frames = []
     if pil_image.format == 'GIF' and pil_image.is_animated:
         for frame in ImageSequence.Iterator(pil_image):
-            n += 1
             frame = frame.resize((width, height))
-            frame.save(path + "\\" + name.replace('.gif', "") + str(n) + ".png")
             pygame_image = pil_image_to_surface(frame.convert('RGBA'))
             frames.append(pygame_image)
     else:
@@ -124,6 +117,7 @@ class RankVisualisation:
         self.currentFrame = (self.currentFrame + 1) % len(self.image)
         if self.rank == 2:
             self.image = self.sprites[0]
+            self.currentFrame = 315
         elif self.rank == 3:
             self.image = self.sprites[2]
         elif self.rank == 4:
@@ -324,7 +318,9 @@ class Vergil(pygame.sprite.Sprite):
                     self.acceleration -= 0.8
                 elif self.acceleration >= -15:
                     self.acceleration -= 0.4
-                if self.rank <= 2:
+                if rank == 0:
+                    self.rect.x -= 15 - self.acceleration
+                elif self.rank <= 2:
                     self.rect.x -= 5 - self.acceleration
                 elif 2 < self.rank < 5:
                     self.rect.x -= 10 - self.acceleration
@@ -345,7 +341,9 @@ class Vergil(pygame.sprite.Sprite):
                     self.acceleration += 0.8
                 if self.acceleration <= 15:
                     self.acceleration += 0.4
-                if self.rank <= 2:
+                if self.rank == 0:
+                    self.rect.x += 15 + self.acceleration
+                elif self.rank <= 2:
                     self.rect.x += 5 + self.acceleration
                 elif 2 < self.rank < 5:
                     self.rect.x += 10 + self.acceleration
@@ -434,14 +432,16 @@ class VergilClone(pygame.sprite.Sprite):
                     self.rect.x = pos[0]
                     self.rect.y = pos[1]
                     self.action = "running left"
+                if rank == 0:
+                    self.rect.x -= 15
                 if rank <= 2:
                     self.rect.x -= 10
                 elif 2 < rank < 5:
-                    self.rect.x -= 15
+                    self.rect.x -= 13
                 elif rank == 5:
-                    self.rect.x -= 20
+                    self.rect.x -= 15
                 else:
-                    self.rect.x -= 25
+                    self.rect.x -= 20
             elif self.rect.x < self.point:
                 if self.action != "running right":
                     self.image = self.sprites[0]
@@ -451,14 +451,16 @@ class VergilClone(pygame.sprite.Sprite):
                     self.rect.x = pos[0]
                     self.rect.y = pos[1]
                     self.action = "running right"
-                if rank <= 2:
+                if rank == 0:
+                    self.rect.x += 15
+                elif rank <= 2:
                     self.rect.x += 10
                 elif 2 < rank < 5:
-                    self.rect.x += 15
+                    self.rect.x += 13
                 elif rank == 5:
-                    self.rect.x += 20
+                    self.rect.x += 15
                 else:
-                    self.rect.x += 30
+                    self.rect.x += 20
             else:
                 if self.action != "standing":
                     self.image = self.sprites[0]
@@ -712,9 +714,9 @@ def pause(objects, rank, times_played, was_no_rank):
         pygame.quit()
         sys.exit()
 
-    continue_button = Button(width / 8 - 200, height * 0.2, 400, 60, 'Continue', game_continue, 1)
-    exit_to_menu = Button(width / 8 - 200, height * 0.4, 400, 60, 'Main menu', exit_to_menu, 1)
-    exit_game_button = Button(width / 8 - 200, height * 0.5, 400, 60, 'Exit to desktop', exit, 1)
+    Button(width / 8 - 200, height * 0.2, 400, 60, 'Continue', game_continue, 1)
+    Button(width / 8 - 200, height * 0.4, 400, 60, 'Main menu', exit_to_menu, 1)
+    Button(width / 8 - 200, height * 0.5, 400, 60, 'Exit to desktop', exit, 1)
     begin = False
     running = True
     s = pygame.Surface((width, height))
@@ -797,9 +799,9 @@ def main_menu(objects):
     fpsClock = pygame.time.Clock()
     pygame.mixer.music.play()
     pygame.mixer.music.set_volume(1)
-    clock = pygame.time.Clock()
-    beginbutton = Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', game_begin)
-    exitbutton = Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', exit)
+    pygame.time.Clock()
+    Button(width / 2 - 200, height * 0.65, 400, 60, 'Begin', game_begin)
+    Button(width / 2 - 200, height * 0.85, 400, 60, 'Exit', exit)
     main_menu_bg = cv2.VideoCapture("data/main_menu_background.mp4")
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
@@ -846,31 +848,12 @@ def main_menu(objects):
         pygame.display.flip()
         fpsClock.tick(fps)
 
-
-if __name__ == "__main__":
-    pygame.init()
-    pygame.mixer.quit()
-    pygame.mixer.init(44100, -16, 2, 512)
-    width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-    pygame.display.set_caption("Vergil Arcanoid Simulator")
-    objects = []
-    main_menu(objects)
-    objects = []
-    all_sprites = pygame.sprite.Group()
-    boxes = pygame.sprite.Group()
-    main_char = pygame.sprite.Group()
-    vcg = pygame.sprite.Group()
-    buttons = pygame.sprite.Group()
-    acceleration = 0
-    rank = -1
-    rank_score = 0
+def sprite_append():
     vergil_sprites = []
     vergil_sprites.append(load_image(r"standing animation.gif", 150, 300, (0, 0, 0)))
     vergil_sprites.append(load_image(r"running left.gif", 225, 300, (0, 0, 0)))
     vergil_sprites.append(load_image(r"running right.gif", 225, 300, (0, 0, 0)))
-    vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
-    rank_progress = RankBar((0.89 * width, 0.583 * height))
+
     ability_sprites = []
     ability_sprites.append(load_image(r"judgement cut (ability).gif", 200, 200, (0, 0, 0)))
     ability_sprites.append(load_image(r"tp left.gif", 350, 300, (0, 0, 0)))
@@ -878,12 +861,12 @@ if __name__ == "__main__":
     ability_sprites.append(load_image(r"judgement cut verg.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"judgement cut end.gif", 150, 300, (0, 0, 0)))
-    fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
+
     doppleganger_sprites = []
     doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 250, 340, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 250, 340, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 260, 300, (0, 0, 0)))
-    vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
+
     style = []
     style.append(load_image(r"dismal.gif", 350, 284, (0, 0, 0)))
     style.append(load_image(r"crazy.gif", 350, 284, (0, 0, 0)))
@@ -898,6 +881,40 @@ if __name__ == "__main__":
     style.append(load_image(r"sick_skills_repeated.gif", 350, 284, (0, 0, 0)))
     style.append(load_image(r"smokin_sexy_style.gif", 350, 284, (0, 0, 0)))
     style.append(load_image(r"smokin_sexy_style_repeated.gif", 350, 284, (0, 0, 0)))
+
+    return vergil_sprites, ability_sprites, doppleganger_sprites, style
+
+if __name__ == "__main__":
+    pygame.init()
+    pygame.mixer.quit()
+    pygame.mixer.init(44100, -16, 2, 512)
+    width, height = pygame.display.Info().current_w, pygame.display.Info().current_h
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    pygame.display.set_caption("Vergil Arcanoid Simulator")
+    objects = []
+    loading_sprite = load_image(r"loading.gif", 100, 100, (0, 0, 0))
+    main_menu(objects)
+    objects = []
+    all_sprites = pygame.sprite.Group()
+    boxes = pygame.sprite.Group()
+    main_char = pygame.sprite.Group()
+    vcg = pygame.sprite.Group()
+    buttons = pygame.sprite.Group()
+    acceleration = 0
+    rank = -1
+    rank_score = 0
+    screen.blit(load_image("vergil loading background.jpeg", width / 1.5, height * 2), (0, 0))
+    pygame.display.flip()
+
+    all_animated_sprites = sprite_append()
+    vergil_sprites = all_animated_sprites[0]
+    vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
+    rank_progress = RankBar((0.89 * width, 0.583 * height))
+    ability_sprites = all_animated_sprites[1]
+    fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
+    doppleganger_sprites = all_animated_sprites[2]
+    vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
+    style = all_animated_sprites[3]
     visualisator = RankVisualisation((width * 0.85, height * 0.32), style)
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
@@ -911,7 +928,6 @@ if __name__ == "__main__":
     spawnwait = 0
     spawnlim = 40
     spawnbox_ready = False
-    pygame.time.set_timer(993, 6000)
     pygame.time.set_timer(995, 10000)
     last_rs = -1
     fabilitycd = True
@@ -921,7 +937,7 @@ if __name__ == "__main__":
     sabilityalive = False
     tpabilitycd = True
     tpstun = False
-    thabilitycd = True
+    thabilitycd = False
     thabilityavtivated = False
     background_color = (7, 0, 36)
     worlds = 1
@@ -952,8 +968,12 @@ if __name__ == "__main__":
                 all_sprites.remove(box)
                 boxes.remove(box)
                 box.kill()
-                if rank_score <= 240:
-                    rank_score += box.touch()
+                if rank_score <= 270 and rank != 0:
+                    rank_score += 2 * box.touch()
+                elif rank_score > 270:
+                    rank_score = 270
+                if rank == 0:
+                    rank_score += 4 * box.touch()
                 if rank == -1:
                     rank = 0
                     music_player(rank, times_played, was_no_rank)
@@ -1010,6 +1030,8 @@ if __name__ == "__main__":
                 thabilitycd = False
                 tpstun = True
                 tpabilitycd = False
+                fabilitycd = False
+                sabilitycd = False
                 pygame.time.set_timer(1011, 2950, 1)
                 pygame.time.set_timer(10111, 2950, 1)
                 vergil.acceleration = 0
@@ -1041,18 +1063,21 @@ if __name__ == "__main__":
                             objects = []
                             main_menu(objects)
                             objects = []
-                            acceleration = 0
-                            rank = -1
-                            rank_score = 0
                             all_sprites = pygame.sprite.Group()
                             boxes = pygame.sprite.Group()
                             main_char = pygame.sprite.Group()
                             vcg = pygame.sprite.Group()
                             buttons = pygame.sprite.Group()
+                            acceleration = 0
+                            rank = -1
+                            rank_score = 0
+                            screen.blit(load_image("vergil loading background.jpeg", width / 1.5, height * 2), (0, 0))
+                            pygame.display.flip()
                             vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
-                            rank_progress = RankBar((0.89 * width, 0.72 * height))
+                            rank_progress = RankBar((0.89 * width, 0.583 * height))
                             fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
                             vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
+                            visualisator = RankVisualisation((width * 0.85, height * 0.32), style)
                             horizontal_borders = pygame.sprite.Group()
                             vertical_borders = pygame.sprite.Group()
                             balls = pygame.sprite.Group()
@@ -1065,7 +1090,6 @@ if __name__ == "__main__":
                             spawnwait = 0
                             spawnlim = 40
                             spawnbox_ready = False
-                            pygame.time.set_timer(993, 6000)
                             pygame.time.set_timer(995, 10000)
                             last_rs = -1
                             fabilitycd = True
@@ -1075,7 +1099,7 @@ if __name__ == "__main__":
                             sabilityalive = False
                             tpabilitycd = True
                             tpstun = False
-                            thabilitycd = True
+                            thabilitycd = False
                             thabilityavtivated = False
                             background_color = (7, 0, 36)
                             worlds = 1
@@ -1084,6 +1108,8 @@ if __name__ == "__main__":
                             was_no_rank = False
                             music_player(rank, times_played, was_no_rank)
                             intro_playing = True
+                            flash = False
+                            i = 255
                             sabilityready = False
                         else:
                             objects = []
@@ -1120,48 +1146,54 @@ if __name__ == "__main__":
                 pygame.mixer.Sound("data/sounds/judgement_cut_end_3.ogg").play()
                 for box in boxes:
                     box.kill()
+                fabilitycd = True
+                sabilitycd = True
                 pygame.time.set_timer(1009, 10000)
                 pygame.time.set_timer(1008, 10000)
                 pygame.time.set_timer(1011, 100)
                 flash = True
                 fps = 50
                 clock = pygame.time.Clock()
-                if rank <= 5:
-                    rank_score = 160
-                else:
-                    rank_score += 40
+                rank_score += 40
             if event.type == 10118:
                 if max_y:
                     for box in boxes:
                         if box.rect.y == max(max_y):
-                            if fabilityused <= 3:
+                            if fabilityused <= 3 and rank < 6:
                                 if keys[pygame.K_1] and fabilityused >= 1:
                                     vergil.currentFrame = 20
                                     vergil.image = ability_sprites[3]
-                                    if rank < 6:
-                                        pygame.time.set_timer(1011, 1400, 1)
-                                        pygame.time.set_timer(10111, 1400, 1)
-                                    elif rank >= 6:
-                                        pygame.time.set_timer(1011, 1400, 1)
-                                        pygame.time.set_timer(10111, 1400, 1)
+                                if rank < 6:
+                                    pygame.time.set_timer(1011, 1400, 1)
+                                    pygame.time.set_timer(10111, 1400, 1)
                                 else:
-                                    if rank < 6:
-                                        pygame.time.set_timer(1011, 900, 1)
-                                        pygame.time.set_timer(10111, 900, 1)
-                                    elif rank >= 6:
-                                        pygame.time.set_timer(1011, 800, 1)
-                                        pygame.time.set_timer(10111, 800, 1)
+                                    pygame.time.set_timer(1011, 900, 1)
+                                    pygame.time.set_timer(10111, 900, 1)
                                 vergil.acceleration = 0
                                 judgement_cut()
-                            if fabilityused <= 4:
+                            if fabilityused <= 4 and rank < 6:
                                 fabilityused += 1
                                 Ball((box.rect.x, box.rect.y), ability_sprites)
                                 box.touched = box.index
                                 if keys[pygame.K_1]:
-                                    if rank < 6:
-                                        pygame.time.set_timer(10118, 500, 1)
-                                    elif rank >= 6:
-                                        pygame.time.set_timer(10118, 400, 1)
+                                    pygame.time.set_timer(10118, 500, 1)
+                            if fabilityused <= 6 and rank >= 6:
+                                if keys[pygame.K_1] and fabilityused >= 1:
+                                    vergil.currentFrame = 20
+                                    vergil.image = ability_sprites[3]
+                                    pygame.time.set_timer(1011, 1400, 1)
+                                    pygame.time.set_timer(10111, 1400, 1)
+                                else:
+                                    pygame.time.set_timer(1011, 800, 1)
+                                    pygame.time.set_timer(10111, 800, 1)
+                                vergil.acceleration = 0
+                                judgement_cut()
+                            if fabilityused <= 7 and rank >= 6:
+                                fabilityused += 1
+                                Ball((box.rect.x, box.rect.y), ability_sprites)
+                                box.touched = box.index
+                                if keys[pygame.K_1]:
+                                    pygame.time.set_timer(10118, 400, 1)
 
         if fabilitybox:
             fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
@@ -1189,92 +1221,122 @@ if __name__ == "__main__":
                                 pygame.time.set_timer(1011, 1100, 1)
                                 pygame.time.set_timer(10111, 1100, 1)
                                 pygame.time.set_timer(1008, 25000, 1)
-        if rank_score >= 220:
+        if rank_score >= 250:
             rank = 8
-            if rank_score < 240:
-                percentage_of_rank = (rank_score - 220) / 20
+            if rank_score <= 270:
+                percentage_of_rank = (rank_score - 250) / 20
             else:
                 percentage_of_rank = 1
             was_no_rank = False
             if last_rs != rank:
-                rank_score = 230
+                rank_score = 260
                 rank_announcer(rank, style)
                 last_rs = 8
-        elif rank_score >= 180:
+                spawnlim = 16
+                worlds = 3.4
+                pygame.time.set_timer(993, 280)
+        elif rank_score >= 210:
             rank = 7
-            percentage_of_rank = (rank_score - 180) / 40
+            percentage_of_rank = (rank_score - 210) / 40
             was_no_rank = False
             if last_rs != rank:
-                rank_score = 190
+                rank_score = 220
+                if last_rs > rank:
+                    rank_score = 245
                 rank_announcer(rank, style)
                 last_rs = 7
-        elif rank_score >= 140:
+                spawnlim = 18
+                worlds = 3.2
+                pygame.time.set_timer(993, 300)
+        elif rank_score >= 170:
             rank = 6
-            percentage_of_rank = (rank_score - 140) / 40
+            percentage_of_rank = (rank_score - 170) / 40
             was_no_rank = False
             if last_rs != rank:
-                rank_score = 150
-                rank_announcer(rank, style)
-                worlds = 3
+                rank_score = 180
+                if last_rs > rank:
+                    rank_score = 205
                 spawnlim = 20
-                last_rs = 6
-                if thabilitycd:
+                worlds = 3
+                rank_announcer(rank, style)
+                if thabilitycd and last_rs < 6:
                     music_player(rank, times_played, was_no_rank)
-        elif rank_score >= 100:
+                last_rs = 6
+                pygame.time.set_timer(993, 400)
+        elif rank_score >= 130:
             rank = 5
-            percentage_of_rank = (rank_score - 100) / 40
+            spawnlim = 20
+            worlds = 2
+            percentage_of_rank = (rank_score - 130) / 40
             was_no_rank = False
             if last_rs != rank:
-                rank_score = 110
+                rank_score = 140
+                if last_rs > rank:
+                    rank_score = 165
                 if not thabilityavtivated:
                     thabilitycd = True
                     thabilityavtivated = True
-                spawnlim = 40
-                rank_announcer(rank, style)
-                worlds = 2
+                rank_announcer(5, style)
                 last_rs = 5
-        elif rank_score >= 80:
-            background_color = (60, 0, 0)
-            percentage_of_rank = (rank_score - 60) / 40
-        elif rank_score >= 60:
-            rank = 4
-            percentage_of_rank = (rank_score - 60) / 40
+                pygame.time.set_timer(993, 400)
+        elif rank_score >= 90:
+            percentage_of_rank = (rank_score - 90) / 40
             was_no_rank = False
+            rank = 4
+            worlds = 1.5
+            spawnlim = 23
             if last_rs != rank:
-                rank_score = 70
-                rank_announcer(rank, style)
+                rank_score = 100
+                if last_rs > rank:
+                    rank_score = 125
+                pygame.time.set_timer(993, 500)
+                rank_announcer(4, style)
                 last_rs = 4
                 background_color = (45, 0, 15)
-        elif rank_score >= 40:
-            rank = 3
-            percentage_of_rank = (rank_score - 40) / 20
+        elif rank_score >= 50:
+            percentage_of_rank = (rank_score - 50) / 40
             was_no_rank = False
+            rank = 3
+            worlds = 1.8
+            spawnlim = 28
             if last_rs != rank:
-                rank_score = 50
-                rank_announcer(rank, style)
-                worlds = 2
+                rank_score = 60
+                if last_rs > rank:
+                    rank_score = 85
+                pygame.time.set_timer(993, 450)
+                rank_announcer(3, style)
                 last_rs = 3
                 background_color = (60, 0, 30)
         elif rank_score >= 20:
             rank = 2
-            percentage_of_rank = (rank_score - 20) / 20
+            worlds = 1.3
+            spawnlim = 28
+            percentage_of_rank = (rank_score - 20) / 30
             if last_rs != rank:
                 rank_score = 30
+                if last_rs > rank:
+                    rank_score = 45
                 if was_no_rank and not intro_playing:
                     music_player(rank, times_played, was_no_rank)
                     was_no_rank = False
-                rank_announcer(rank, style)
-                worlds = 1
+                rank_announcer(2, style)
                 last_rs = 2
+                pygame.time.set_timer(993, 550)
                 background_color = (20, 0, 86)
-        elif rank_score >= 1:
+        elif rank_score >= 1 and not rank == 0:
             rank = 1
             percentage_of_rank = 0
             was_no_rank = True
             if last_rs != rank:
+                pygame.time.set_timer(993, 700)
+                worlds = 1
+                spawnlim = 30
                 last_rs = 1
                 background_color = (10, 0, 56)
         else:
+            pygame.time.set_timer(993, 750)
+            worlds = 2
+            spawnlim = 20
             percentage_of_rank = 0
             background_color = (7, 0, 36)
         spawnwait += 1
@@ -1293,7 +1355,7 @@ if __name__ == "__main__":
         buttons.update()
         main_char.update()
         vcg.update()
-        if rank >= 2:
+        if rank_score >= 20:
             visualisator.update()
             if visualisator.currentFrame == len(visualisator.image) - 1:
                 visualisator.currentFrame = 0
