@@ -5,7 +5,6 @@ import random
 from PIL import Image, ImageSequence
 import cv2
 
-
 pygame.mixer.pre_init(44100, -16, 2, 512)
 
 
@@ -137,8 +136,8 @@ class Border(pygame.sprite.Sprite):
         super().__init__(all_sprites)
         if x1 == x2:
             self.add(vertical_borders)
-            self.image = pygame.Surface([1, y2 - y1])
-            self.rect = pygame.Rect(x1, y1, 1, y2 - y1)
+            self.image = pygame.Surface([500, y2 - y1])
+            self.rect = pygame.Rect(x1, y1, x2, y2 - y1)
         else:
             self.add(horizontal_borders)
             self.image = pygame.Surface([x2 - x1, 1])
@@ -209,7 +208,7 @@ class BaseBox(pygame.sprite.Sprite):
             self.sidemovem = -self.sidemovem
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             global rank_score
-            if rank_score > 1:
+            if rank_score > 1 and can_shrink:
                 rank_score -= 1
             self.kill()
 
@@ -256,13 +255,13 @@ class ButtonBox(pygame.sprite.Sprite):
     def update(self):
         if pygame.sprite.spritecollideany(self, horizontal_borders):
             global rank_score
-            if rank_score > 1:
+            if rank_score > 2 and can_shrink:
                 rank_score -= 2
             self.kill()
-        mousePos = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()
         self.image.blit(self.imagebb, (70, 20))
         self.imagebb.blit(self.imageb, (5, 5))
-        if self.rectb.collidepoint(mousePos):
+        if self.rectb.collidepoint(mouse_pos):
             if pygame.mouse.get_pressed(num_buttons=3)[0]:
                 self.readytotouch = True
         if self.readytotouch and pygame.sprite.collide_mask(self, vergil):
@@ -471,6 +470,7 @@ class VergilClone(pygame.sprite.Sprite):
                     self.rect.y = pos[1]
                     self.action = "standing"
 
+
 class Button():
     def __init__(self, x, y, width, height, buttonText, onclickFunction, type=0):
         self.x = x
@@ -484,24 +484,26 @@ class Button():
         self.buttonSurface = pygame.Surface((self.width, self.height))
         self.buttonRect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.alreadyPressed = False
+        self.buttonSurf = None
         objects.append(self)
 
     def process(self):
-        mousePos = pygame.mouse.get_pos()
+        mouse_pos = pygame.mouse.get_pos()
         self.buttonSurface = self.buttonSurface.convert_alpha()
-        if not self.buttonRect.collidepoint(mousePos):
+        if not self.buttonRect.collidepoint(mouse_pos):
             self.buttonSurface.fill((0, 0, 0, 0))
             font = pygame.font.Font('data/font/DMC5Font.otf', 45)
             self.buttonSurf = font.render(self.buttonText, True, (255, 255, 255))
             self.flicked = False
-        if self.buttonRect.collidepoint(mousePos):
+        if self.buttonRect.collidepoint(mouse_pos):
             self.buttonSurface.fill((0, 39, 62, 0))
             if self.type == 0:
                 shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w, self.height).size,
-                                                pygame.SRCALPHA)
-            else:
-                shape_surf = pygame.Surface(pygame.Rect(0, self.y, pygame.display.Info().current_w / 3.912, self.height).size,
                                             pygame.SRCALPHA)
+            else:
+                shape_surf = pygame.Surface(
+                    pygame.Rect(0, self.y, pygame.display.Info().current_w / 3.912, self.height).size,
+                    pygame.SRCALPHA)
             pygame.draw.rect(shape_surf, (0, 39, 62, 230), shape_surf.get_rect())
             if self.type == 0:
                 screen.blit(shape_surf, (0, self.y, pygame.display.Info().current_w, self.height))
@@ -528,11 +530,7 @@ class Button():
         screen.blit(self.buttonSurface, self.buttonRect)
 
 
-def main_menu_music_player():
-    pygame.mixer.Music.play("data/music/main_menu.ogg")
-
-
-def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
+def music_player(style_rank, badass_progress, lst_rank, s_progress, tutorial=False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
     if tutorial and rank == 0:
@@ -547,7 +545,7 @@ def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
     elif style_rank == 1:
         pygame.mixer.music.load("data/music/bury_the_light_no_rank.ogg")
         pygame.mixer.music.play(1)
-    elif style_rank == 2 and prev_no_rank:
+    elif style_rank == 2 and lst_rank == 1:
         skip = pygame.mixer.music.get_pos()
         if a == 0:
             pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
@@ -556,7 +554,7 @@ def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
             pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
             pygame.mixer.music.play(1, skip / 1000)
 
-    elif style_rank == 2 and not prev_no_rank:
+    elif style_rank == 2 and lst_rank != 1:
         if a == 0:
             pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
             pygame.mixer.music.play(1)
@@ -584,8 +582,26 @@ def music_player(style_rank, badass_progress, prev_no_rank, tutorial = False):
     elif style_rank == 5:
         pygame.mixer.music.load("data/music/bury_the_light_apocalyptic.ogg")
         pygame.mixer.music.play(1)
-    elif style_rank >= 6:
-        pygame.mixer.music.load("data/music/bury_the_light_s.ogg")
+    elif style_rank >= 6 and s_progress == 0:
+        pygame.mixer.music.load("data/music/bury_the_light_s1.ogg")
+        pygame.mixer.music.play(1)
+    elif style_rank >= 6 and s_progress == 1:
+        pygame.mixer.music.load("data/music/bury_the_light_s2.ogg")
+        pygame.mixer.music.play(1)
+    elif style_rank >= 6 and s_progress == 2:
+        pygame.mixer.music.load("data/music/bury_the_light_s3.ogg")
+        pygame.mixer.music.play(1)
+    elif style_rank >= 6 and s_progress == 3:
+        pygame.mixer.music.load("data/music/bury_the_light_s4.ogg")
+        pygame.mixer.music.play(1)
+    elif style_rank >= 6 and s_progress == 4:
+        pygame.mixer.music.load("data/music/bury_the_light_s5.ogg")
+        pygame.mixer.music.play(1)
+    elif style_rank >= 6 and s_progress == 5:
+        pygame.mixer.music.load("data/music/bury_the_light_s6.ogg")
+        pygame.mixer.music.play(1)
+    elif style_rank >= 6 and s_progress == 6:
+        pygame.mixer.music.load("data/music/bury_the_light_s7.ogg")
         pygame.mixer.music.play(1)
 
 
@@ -679,17 +695,43 @@ def rank_announcer(style_rank, visualisation_sprites):
             pygame.mixer.Sound('data/sounds/smokin_sexy_style2.ogg').play()
 
 
-def third_ability():
+def third_ability(rank, times_played, last_rs, s_progress, intro_playing):
     video = cv2.VideoCapture("data/storm that is approaching.mp4")
     fps = video.get(cv2.CAP_PROP_FPS)
     fpsClock = pygame.time.Clock()
     clock = pygame.time.Clock()
+    MUSIC_END = pygame.USEREVENT + 1
+    pygame.mixer.music.set_endevent(MUSIC_END)
+    pygame.mixer.music.set_volume(0.5)
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == MUSIC_END:
+                intro_playing = False
+                if rank == -1:
+                    rank = 0
+                    music_player(rank, times_played, last_rs, s_progress)
+                    intro_playing = True
+                elif rank == 0:
+                    rank = 1
+                    music_player(rank, times_played, last_rs, s_progress)
+                if rank == 4:
+                    times_played += 1
+                    music_player(rank, times_played, last_rs, s_progress)
+                    if times_played == 3:
+                        times_played = 0
+                        music_player(rank, times_played, last_rs, s_progress)
+                if rank >= 6:
+                    s_progress += 1
+                    music_player(rank, times_played, last_rs, s_progress)
+                    if s_progress == 7:
+                        s_progress = 0
+                        music_player(rank, times_played, last_rs, s_progress)
+                else:
+                    music_player(rank, times_played, last_rs, s_progress)
         success, video_image = video.read()
         if success:
             video_surf = pygame.image.frombuffer(
@@ -701,7 +743,7 @@ def third_ability():
         pygame.display.flip()
 
 
-def pause(objects, rank, times_played, was_no_rank):
+def pause(objects, rank, times_played, last_rs, s_progress, intro_playing):
     def game_continue():
         ev = pygame.event.Event(1001)
         pygame.event.post(ev)
@@ -737,30 +779,32 @@ def pause(objects, rank, times_played, was_no_rank):
             if event.type == 1001:
                 begin = True
             if event.type == 1002:
-                begin = True
                 return 1
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pygame.mixer.Sound("data/sounds/escape sound.ogg").play()
                     begin = True
             if event.type == MUSIC_END:
-                intro_playing = False
                 if rank == -1:
                     rank = 0
-                    music_player(rank, times_played, was_no_rank)
-                    intro_playing = True
+                    music_player(rank, times_played, last_rs, s_progress)
                 elif rank == 0:
                     rank = 1
-                    music_player(rank, times_played, was_no_rank)
-                    was_no_rank = True
+                    music_player(rank, times_played, last_rs, s_progress)
                 if rank == 4:
                     times_played += 1
-                    music_player(rank, times_played, was_no_rank)
+                    music_player(rank, times_played, last_rs, s_progress)
                     if times_played == 3:
                         times_played = 0
-                        music_player(rank, times_played, was_no_rank)
+                        music_player(rank, times_played, last_rs, s_progress)
+                if rank >= 6:
+                    s_progress += 1
+                    music_player(rank, times_played, last_rs, s_progress)
+                    if s_progress == 7:
+                        s_progress = 0
+                        music_player(rank, times_played, last_rs, s_progress)
                 else:
-                    music_player(rank, times_played, was_no_rank)
+                    music_player(rank, times_played, last_rs, s_progress)
         s = pygame.Surface((width, height))
         s.fill((80, 80, 80))
         if transparency <= 3:
@@ -794,7 +838,6 @@ def main_menu(objects):
 
     video = cv2.VideoCapture("data/intro.mp4")
     pygame.mixer.music.load("data/music/intro.ogg")
-    success, video_image = video.read()
     fps = video.get(cv2.CAP_PROP_FPS)
     fpsClock = pygame.time.Clock()
     pygame.mixer.music.play()
@@ -820,7 +863,6 @@ def main_menu(objects):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     video.release()
-                    success = False
             if event.type == MUSIC_END:
                 main_menu_music()
             if event.type == 1001:
@@ -848,13 +890,12 @@ def main_menu(objects):
         pygame.display.flip()
         fpsClock.tick(fps)
 
+
 def sprite_append():
-    vergil_sprites = []
     vergil_sprites.append(load_image(r"standing animation.gif", 150, 300, (0, 0, 0)))
     vergil_sprites.append(load_image(r"running left.gif", 225, 300, (0, 0, 0)))
     vergil_sprites.append(load_image(r"running right.gif", 225, 300, (0, 0, 0)))
 
-    ability_sprites = []
     ability_sprites.append(load_image(r"judgement cut (ability).gif", 200, 200, (0, 0, 0)))
     ability_sprites.append(load_image(r"tp left.gif", 350, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"tp right.gif", 350, 300, (0, 0, 0)))
@@ -862,12 +903,10 @@ def sprite_append():
     ability_sprites.append(load_image(r"doppleganger summon.gif", 150, 300, (0, 0, 0)))
     ability_sprites.append(load_image(r"judgement cut end.gif", 150, 300, (0, 0, 0)))
 
-    doppleganger_sprites = []
     doppleganger_sprites.append(load_image(r"doppleganger running right.gif", 250, 340, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger running left.gif", 250, 340, (0, 0, 0)))
     doppleganger_sprites.append(load_image(r"doppleganger standing.gif", 260, 300, (0, 0, 0)))
 
-    style = []
     style.append(load_image(r"dismal.gif", 350, 284, (0, 0, 0)))
     style.append(load_image(r"crazy.gif", 350, 284, (0, 0, 0)))
     style.append(load_image(r"crazy_repeated.gif", 350, 284, (0, 0, 0)))
@@ -882,7 +921,6 @@ def sprite_append():
     style.append(load_image(r"smokin_sexy_style.gif", 350, 284, (0, 0, 0)))
     style.append(load_image(r"smokin_sexy_style_repeated.gif", 350, 284, (0, 0, 0)))
 
-    return vergil_sprites, ability_sprites, doppleganger_sprites, style
 
 if __name__ == "__main__":
     pygame.init()
@@ -892,7 +930,6 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
     pygame.display.set_caption("Vergil Arcanoid Simulator")
     objects = []
-    loading_sprite = load_image(r"loading.gif", 100, 100, (0, 0, 0))
     main_menu(objects)
     objects = []
     all_sprites = pygame.sprite.Group()
@@ -903,25 +940,25 @@ if __name__ == "__main__":
     acceleration = 0
     rank = -1
     rank_score = 0
+    can_shrink = True
     screen.blit(load_image("vergil loading background.jpeg", width / 1.5, height * 2), (0, 0))
     pygame.display.flip()
-
-    all_animated_sprites = sprite_append()
-    vergil_sprites = all_animated_sprites[0]
+    vergil_sprites = []
+    ability_sprites = []
+    doppleganger_sprites = []
+    style = []
+    sprite_append()
     vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
     rank_progress = RankBar((0.89 * width, 0.583 * height))
-    ability_sprites = all_animated_sprites[1]
     fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
-    doppleganger_sprites = all_animated_sprites[2]
     vc = VergilClone((-300, vergil.rect.y), doppleganger_sprites)
-    style = all_animated_sprites[3]
     visualisator = RankVisualisation((width * 0.85, height * 0.32), style)
     horizontal_borders = pygame.sprite.Group()
     vertical_borders = pygame.sprite.Group()
     balls = pygame.sprite.Group()
-    Border(0, height + 200, width, height + 200)
+    Border(0, height + 50, width, height + 50)
     Border(-100, 0, -100, height)
-    Border(width + 50, 0, width + 50, height)
+    Border(width + 100, 0, width + 100, height)
     fps = 50
     clock = pygame.time.Clock()
     running = True
@@ -943,8 +980,8 @@ if __name__ == "__main__":
     worlds = 1
     percentage_of_rank = 0
     times_played = -1
-    was_no_rank = False
-    music_player(rank, times_played, was_no_rank)
+    s_progress = -1
+    music_player(rank, times_played, last_rs, s_progress)
     intro_playing = True
     MUSIC_END = pygame.USEREVENT + 1
     pygame.mixer.music.set_endevent(MUSIC_END)
@@ -976,7 +1013,7 @@ if __name__ == "__main__":
                     rank_score += 4 * box.touch()
                 if rank == -1:
                     rank = 0
-                    music_player(rank, times_played, was_no_rank)
+                    music_player(rank, times_played, last_rs, s_progress)
         keys = pygame.key.get_pressed()
         if sabilitycd:
             if keys[pygame.K_2]:
@@ -1019,11 +1056,14 @@ if __name__ == "__main__":
         if thabilitycd:
             if keys[pygame.K_3]:
                 fps = 29
+                can_shrink = False
                 vergil.currentFrame = 0
                 vergil.image = ability_sprites[5]
                 judgement_cut_end()
                 if rank <= 5:
-                    pygame.mixer.music.load("data/music/bury_the_light_s(alt).ogg")
+                    if s_progress == -1:
+                        s_progress = 0
+                    pygame.mixer.music.load("data/music/bury_the_light_s1(alt).ogg")
                     pygame.mixer.music.play(1)
                 pygame.time.set_timer(10101, 2950, 1)
                 pygame.time.set_timer(1010, 60000, 1)
@@ -1040,26 +1080,31 @@ if __name__ == "__main__":
                 intro_playing = False
                 if rank == -1:
                     rank = 0
-                    music_player(rank, times_played, was_no_rank)
+                    music_player(rank, times_played, last_rs, s_progress)
                     intro_playing = True
                 elif rank == 0:
                     rank = 1
-                    music_player(rank, times_played, was_no_rank)
-                    was_no_rank = True
+                    music_player(rank, times_played, last_rs, s_progress)
                 if rank == 4:
                     times_played += 1
-                    music_player(rank, times_played, was_no_rank)
+                    music_player(rank, times_played, last_rs, s_progress)
                     if times_played == 3:
                         times_played = 0
-                        music_player(rank, times_played, was_no_rank)
+                        music_player(rank, times_played, last_rs, s_progress)
+                if rank >= 6:
+                    s_progress += 1
+                    music_player(rank, times_played, last_rs, s_progress)
+                    if s_progress == 7:
+                        s_progress = 0
+                        music_player(rank, times_played, last_rs, s_progress)
                 else:
-                    music_player(rank, times_played, was_no_rank)
+                    music_player(rank, times_played, last_rs, s_progress)
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if not tpstun:
-                        if pause(objects, rank, times_played, was_no_rank) == 1:
+                        if pause(objects, rank, times_played, last_rs, s_progress, intro_playing) == 1:
                             objects = []
                             main_menu(objects)
                             objects = []
@@ -1071,6 +1116,7 @@ if __name__ == "__main__":
                             acceleration = 0
                             rank = -1
                             rank_score = 0
+                            can_shrink = True
                             screen.blit(load_image("vergil loading background.jpeg", width / 1.5, height * 2), (0, 0))
                             pygame.display.flip()
                             vergil = Vergil(((width / 2) - 100, height - 300), vergil_sprites)
@@ -1081,9 +1127,9 @@ if __name__ == "__main__":
                             horizontal_borders = pygame.sprite.Group()
                             vertical_borders = pygame.sprite.Group()
                             balls = pygame.sprite.Group()
-                            Border(0, height + 200, width, height + 200)
+                            Border(0, height + 50, width, height + 50)
                             Border(-100, 0, -100, height)
-                            Border(width + 50, 0, width + 50, height)
+                            Border(width + 100, 0, width + 100, height)
                             fps = 50
                             clock = pygame.time.Clock()
                             running = True
@@ -1105,8 +1151,8 @@ if __name__ == "__main__":
                             worlds = 1
                             percentage_of_rank = 0
                             times_played = -1
-                            was_no_rank = False
-                            music_player(rank, times_played, was_no_rank)
+                            s_progress = -1
+                            music_player(rank, times_played, last_rs, s_progress)
                             intro_playing = True
                             flash = False
                             i = 255
@@ -1114,7 +1160,8 @@ if __name__ == "__main__":
                         else:
                             objects = []
             if event.type == 993:
-                rank_score -= 1
+                if rank_score > 1 and can_shrink:
+                    rank_score -= 1
             if event.type == 995:
                 random_dialogues()
                 pass
@@ -1142,8 +1189,13 @@ if __name__ == "__main__":
                 thabilitycd = True
             if event.type == 10101:
                 pygame.mixer.Sound("data/sounds/judgement_cut_end_2.ogg").play()
-                third_ability()
+                fabox.kill()
+                sabilityalive = False
+                sabilityready = False
+                third_ability(rank, times_played, last_rs, s_progress, intro_playing)
+                fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
                 pygame.mixer.Sound("data/sounds/judgement_cut_end_3.ogg").play()
+                can_shrink = True
                 for box in boxes:
                     box.kill()
                 fabilitycd = True
@@ -1177,7 +1229,7 @@ if __name__ == "__main__":
                                 box.touched = box.index
                                 if keys[pygame.K_1]:
                                     pygame.time.set_timer(10118, 500, 1)
-                            if fabilityused <= 6 and rank >= 6:
+                            if fabilityused <= 6 <= rank:
                                 if keys[pygame.K_1] and fabilityused >= 1:
                                     vergil.currentFrame = 20
                                     vergil.image = ability_sprites[3]
@@ -1194,6 +1246,7 @@ if __name__ == "__main__":
                                 box.touched = box.index
                                 if keys[pygame.K_1]:
                                     pygame.time.set_timer(10118, 400, 1)
+                            pygame.time.set_timer(1008, 25000, 1)
 
         if fabilitybox:
             fabox = AbilityBox((width * 0.75, height * 0.8), ability_sprites)
@@ -1215,30 +1268,27 @@ if __name__ == "__main__":
                                 pygame.time.set_timer(10118, 800, 1)
                                 pygame.time.set_timer(1011, 1200, 1)
                                 pygame.time.set_timer(10111, 1200, 1)
-                                pygame.time.set_timer(1008, 25000, 1)
                             elif rank >= 6:
                                 pygame.time.set_timer(10118, 700, 1)
                                 pygame.time.set_timer(1011, 1100, 1)
                                 pygame.time.set_timer(10111, 1100, 1)
-                                pygame.time.set_timer(1008, 25000, 1)
+
         if rank_score >= 250:
             rank = 8
             if rank_score <= 270:
                 percentage_of_rank = (rank_score - 250) / 20
             else:
                 percentage_of_rank = 1
-            was_no_rank = False
             if last_rs != rank:
                 rank_score = 260
                 rank_announcer(rank, style)
                 last_rs = 8
                 spawnlim = 16
                 worlds = 3.4
-                pygame.time.set_timer(993, 280)
+                pygame.time.set_timer(993, 230)
         elif rank_score >= 210:
             rank = 7
             percentage_of_rank = (rank_score - 210) / 40
-            was_no_rank = False
             if last_rs != rank:
                 rank_score = 220
                 if last_rs > rank:
@@ -1247,11 +1297,10 @@ if __name__ == "__main__":
                 last_rs = 7
                 spawnlim = 18
                 worlds = 3.2
-                pygame.time.set_timer(993, 300)
+                pygame.time.set_timer(993, 280)
         elif rank_score >= 170:
             rank = 6
             percentage_of_rank = (rank_score - 170) / 40
-            was_no_rank = False
             if last_rs != rank:
                 rank_score = 180
                 if last_rs > rank:
@@ -1260,15 +1309,16 @@ if __name__ == "__main__":
                 worlds = 3
                 rank_announcer(rank, style)
                 if thabilitycd and last_rs < 6:
-                    music_player(rank, times_played, was_no_rank)
+                    if s_progress == -1:
+                        s_progress = 0
+                    music_player(rank, times_played, last_rs, s_progress)
                 last_rs = 6
-                pygame.time.set_timer(993, 400)
+                pygame.time.set_timer(993, 300)
         elif rank_score >= 130:
             rank = 5
             spawnlim = 20
             worlds = 2
             percentage_of_rank = (rank_score - 130) / 40
-            was_no_rank = False
             if last_rs != rank:
                 rank_score = 140
                 if last_rs > rank:
@@ -1278,13 +1328,12 @@ if __name__ == "__main__":
                     thabilityavtivated = True
                 rank_announcer(5, style)
                 last_rs = 5
-                pygame.time.set_timer(993, 400)
+                pygame.time.set_timer(993, 380)
         elif rank_score >= 90:
             percentage_of_rank = (rank_score - 90) / 40
-            was_no_rank = False
             rank = 4
-            worlds = 1.5
-            spawnlim = 23
+            worlds = 1.6
+            spawnlim = 20
             if last_rs != rank:
                 rank_score = 100
                 if last_rs > rank:
@@ -1295,15 +1344,14 @@ if __name__ == "__main__":
                 background_color = (45, 0, 15)
         elif rank_score >= 50:
             percentage_of_rank = (rank_score - 50) / 40
-            was_no_rank = False
             rank = 3
             worlds = 1.8
-            spawnlim = 28
+            spawnlim = 25
             if last_rs != rank:
                 rank_score = 60
                 if last_rs > rank:
                     rank_score = 85
-                pygame.time.set_timer(993, 450)
+                pygame.time.set_timer(993, 480)
                 rank_announcer(3, style)
                 last_rs = 3
                 background_color = (60, 0, 30)
@@ -1316,9 +1364,8 @@ if __name__ == "__main__":
                 rank_score = 30
                 if last_rs > rank:
                     rank_score = 45
-                if was_no_rank and not intro_playing:
-                    music_player(rank, times_played, was_no_rank)
-                    was_no_rank = False
+                if last_rs == 1 and not intro_playing:
+                    music_player(rank, times_played, last_rs, s_progress)
                 rank_announcer(2, style)
                 last_rs = 2
                 pygame.time.set_timer(993, 550)
@@ -1326,7 +1373,6 @@ if __name__ == "__main__":
         elif rank_score >= 1 and not rank == 0:
             rank = 1
             percentage_of_rank = 0
-            was_no_rank = True
             if last_rs != rank:
                 pygame.time.set_timer(993, 700)
                 worlds = 1
