@@ -8,6 +8,7 @@ import cv2
 pygame.mixer.pre_init(44100, -16, 2, 512)
 
 
+# ---------------Обработка изображений и gif'ок, разделение последних на отдельные изображения
 def pil_image_to_surface(pil_image):
     mode, size, data = pil_image.mode, pil_image.size, pil_image.tobytes()
     return pygame.image.fromstring(data, size, mode).convert_alpha()
@@ -41,6 +42,8 @@ def load_image(name, width, height, colorkey=None):
     return frames
 
 
+# ----------------------------
+# Класс иконки первой способности
 class AbilityBox(pygame.sprite.Sprite):
     def __init__(self, pos, sprites):
         super().__init__(all_sprites)
@@ -60,6 +63,7 @@ class AbilityBox(pygame.sprite.Sprite):
         self.currentFrame = (self.currentFrame + 1) % len(self.image)
 
 
+# Основной класс первой способности
 class Ball(pygame.sprite.Sprite):
     def __init__(self, pos, sprites):
         super().__init__(all_sprites)
@@ -79,6 +83,7 @@ class Ball(pygame.sprite.Sprite):
         self.currentFrame = (self.currentFrame + 1) % len(self.image)
 
 
+# Класс progress bar'а, показывающего, сколько осталось до следующего ранга
 class RankBar:
     def __init__(self, pos):
         super().__init__()
@@ -98,6 +103,7 @@ class RankBar:
             pygame.draw.rect(screen, (0, 0, 0), pygame.Rect(self.x, self.y, 200, 20), 2)
 
 
+# Класс, показывающий текущий ранг. Использует разделённые ранее гифки
 class RankVisualisation:
     def __init__(self, pos, sprites):
         super().__init__()
@@ -131,6 +137,13 @@ class RankVisualisation:
             self.image = self.sprites[12]
 
 
+"""
+Класс вертикальной и горизонтальной границы (плитки от горизонтальной границы пропадают,
+а от вертикальной отталкиваются).
+Вергилий при прохождении через вертикальную границу телепортируется на другую сторону.
+"""
+
+
 class Border(pygame.sprite.Sprite):
     def __init__(self, x1, y1, x2, y2):
         super().__init__(all_sprites)
@@ -142,6 +155,11 @@ class Border(pygame.sprite.Sprite):
             self.add(horizontal_borders)
             self.image = pygame.Surface([x2 - x1, 1])
             self.rect = pygame.Rect(x1, y1, x2 - x1, 1)
+
+
+"""
+Основной класс плиток. Имеет в себе несколько эффектов (ускорение, кручение, отталкивание)
+"""
 
 
 class BaseBox(pygame.sprite.Sprite):
@@ -225,6 +243,11 @@ class BaseBox(pygame.sprite.Sprite):
                 spawnwait = 40
 
 
+"""
+Класс плитки с кнопокой
+"""
+
+
 class ButtonBox(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__(all_sprites)
@@ -284,6 +307,12 @@ class ButtonBox(pygame.sprite.Sprite):
                 self.kill()
                 global spawnbox_ready
                 spawnbox_ready = True
+
+
+"""
+Класс самого Вергилия (главного персонажа). Имеет несколько анимаций также подгружаемых из гифок. При движении в одну
+из сторон, он набирает ускорение.
+"""
 
 
 class Vergil(pygame.sprite.Sprite):
@@ -382,6 +411,12 @@ class Vergil(pygame.sprite.Sprite):
                 self.rect.x = 100
 
 
+"""
+Класс двойника Вергилия. Он появляется недалеко от Вергилия и охотится за самыми нижними плитками. Тажкже имеет 
+несколько анимаций.
+"""
+
+
 class VergilClone(pygame.sprite.Sprite):
     def __init__(self, pos, sprites):
         super().__init__(vcg)
@@ -471,6 +506,11 @@ class VergilClone(pygame.sprite.Sprite):
                     self.action = "standing"
 
 
+"""
+Класс кнопки. Имеет два типа: 0 - для главного меню, 1 - для паузы
+"""
+
+
 class Button():
     def __init__(self, x, y, width, height, buttonText, onclickFunction, type=0):
         self.x = x
@@ -530,6 +570,11 @@ class Button():
         screen.blit(self.buttonSurface, self.buttonRect)
 
 
+"""
+Функция музыки. Вызывется из ивента либо принудительно (в зависимости от ранга). Имеет несколько вариаций
+"""
+
+
 def music_player(style_rank, badass_progress, lst_rank, s_progress, tutorial=False):
     a = random.randint(0, 1)
     b = random.randint(0, 2)
@@ -547,13 +592,20 @@ def music_player(style_rank, badass_progress, lst_rank, s_progress, tutorial=Fal
         pygame.mixer.music.play(1)
     elif style_rank == 2 and lst_rank == 1:
         skip = pygame.mixer.music.get_pos()
-        if a == 0:
-            pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
-            pygame.mixer.music.play(1, skip / 1000)
-        elif a == 1:
-            pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
-            pygame.mixer.music.play(1, skip / 1000)
-
+        try:
+            if a == 0:
+                pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
+                pygame.mixer.music.play(1, skip / 1000)
+            elif a == 1:
+                pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
+                pygame.mixer.music.play(1, skip / 1000)
+        except ValueError:
+            if a == 0:
+                pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
+                pygame.mixer.music.play(1)
+            elif a == 1:
+                pygame.mixer.music.load('data/music/bury_the_light_dismal_2.ogg')
+                pygame.mixer.music.play(1)
     elif style_rank == 2 and lst_rank != 1:
         if a == 0:
             pygame.mixer.music.load('data/music/bury_the_light_dismal_1.ogg')
@@ -605,6 +657,11 @@ def music_player(style_rank, badass_progress, lst_rank, s_progress, tutorial=Fal
         pygame.mixer.music.play(1)
 
 
+"""
+Звук для первой способности
+"""
+
+
 def judgement_cut():
     c = pygame.mixer.Sound("data/sounds/judgement_cut_sound.ogg")
     c.play()
@@ -612,15 +669,28 @@ def judgement_cut():
         a = pygame.mixer.Sound("data/sounds/jackpot.ogg")
         a.play()
 
+"""
+Звук для второй способности
+"""
+
 
 def doppleganger():
     c = pygame.mixer.Sound("data/sounds/doppleganger_spawn.ogg")
     c.play()
 
+"""
+Звук для третьей способности
+"""
+
 
 def judgement_cut_end():
     pygame.mixer.Sound("data/sounds/judgement_cut_end_1.ogg").play()
     pygame.mixer.Sound("data/sounds/you_shall_die.ogg").play()
+
+
+"""
+Случайные диалоги, который Вергилий произносит с некоторым интервалом
+"""
 
 
 def random_dialogues():
@@ -643,6 +713,11 @@ def random_dialogues():
     elif a == 5:
         s = pygame.mixer.Sound("data/sounds/now_im_a_little_motivated.ogg")
         s.play()
+
+
+"""
+При переходе на следующий ранг, будет вызываться звук ранга (Dismal, Crazy...). Имеет по две вариации
+"""
 
 
 def rank_announcer(style_rank, visualisation_sprites):
@@ -695,6 +770,11 @@ def rank_announcer(style_rank, visualisation_sprites):
             pygame.mixer.Sound('data/sounds/smokin_sexy_style2.ogg').play()
 
 
+"""
+Катсцена и звуки для третьей способности
+"""
+
+
 def third_ability(rank, times_played, last_rs, s_progress, intro_playing):
     video = cv2.VideoCapture("data/storm that is approaching.mp4")
     fps = video.get(cv2.CAP_PROP_FPS)
@@ -741,6 +821,11 @@ def third_ability(rank, times_played, last_rs, s_progress, intro_playing):
             break
         fpsClock.tick(fps)
         pygame.display.flip()
+
+
+"""
+Функция паузы на esc. Заглушает музыку, приостанавливает основной цикл другим циклом.
+"""
 
 
 def pause(objects, rank, times_played, last_rs, s_progress, intro_playing):
@@ -822,6 +907,11 @@ def pause(objects, rank, times_played, last_rs, s_progress, intro_playing):
         clock.tick(fps)
 
 
+"""
+Функция главного меню. Вначале прогружает катсцену (можно пропустить на esc), а затем само главное меню.
+"""
+
+
 def main_menu(objects):
     def game_begin():
         ev = pygame.event.Event(1001)
@@ -891,6 +981,11 @@ def main_menu(objects):
         fpsClock.tick(fps)
 
 
+"""
+По отдельности загружает каждую гифку и присваивает изображения из них в отдельные списки.
+"""
+
+
 def sprite_append():
     vergil_sprites.append(load_image(r"standing animation.gif", 150, 300, (0, 0, 0)))
     vergil_sprites.append(load_image(r"running left.gif", 225, 300, (0, 0, 0)))
@@ -922,6 +1017,14 @@ def sprite_append():
     style.append(load_image(r"smokin_sexy_style_repeated.gif", 350, 284, (0, 0, 0)))
 
 
+"""
+Основной цикл и переменные. При завершении музыки вызывает ивент для запуска следующей (в соответствии с рангом).
+При зажатии 1 или нажатии 2 вызывает выполнение способностей персонажа (1 - быстрые разрезы, 2 - двойник)
+Для использования третьей способности на 3, нужно вначале добраться до ранга А. Только после этого её можно
+будет использовать.
+После третьей способности будет эффект "флешки".
+При нажатии shift + A или D, Вергилий телепортируется на некоторое расстояние (зависит от набранного ускорения)
+"""
 if __name__ == "__main__":
     pygame.init()
     pygame.mixer.quit()
